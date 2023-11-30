@@ -1,0 +1,25 @@
+# LaTeX generated files
+*.aux
+*.log
+*.toc
+*.out
+*.synctex.gz
+*.pdf
+
+# LaTeX editor temporary files
+*.swp
+*.bak
+*.dvi
+*.fdb_latexmk
+*.fls
+*.gz
+
+# LaTeX project build directory
+/build/
+
+# BibTeX generated files
+*.bbl
+*.blg
+
+# Mac OS X Finder metadata
+.DS_Store

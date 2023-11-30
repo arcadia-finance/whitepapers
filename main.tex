@@ -1,0 +1,91 @@
+\documentclass[sigconf,nonacm]{acmart}
+
+%% packages
+\usepackage{graphicx}
+\usepackage{lipsum}
+
+\title{Arcadia Finance [Draft]}
+\subtitle{November 2023}
+\date{November 2023}
+
+\author{Thomas Smets}
+\affiliation{
+    \institution{Arcadia Finance}
+    \city{Brussels}
+    \country{Belgium}
+}
+\email{thomas@arcadia.finance}
+
+\renewcommand{\shortauthors}{Smets et al.}
+
+%% Add whitespace
+\begin{teaserfigure}
+    \vspace{1em}
+    \Description{Just used to add a whitespace over the length of the document.}
+\end{teaserfigure}
+
+\begin{document}
+
+\begin{abstract}
+    \lipsum[1]
+\end{abstract}
+
+\keywords{DeFi, EVM, collateral}
+
+\maketitle
+
+\section{Introduction} 
+\label{sec:introduction}
+
+\lipsum[2]
+
+
+\section{Section 1} 
+\label{sec:section1}
+
+\lipsum[3]
+
+\subsection{Subsection 1} 
+\label{subsec:subsection1}
+
+\lipsum[4]
+
+\begin{itemize}
+\item test \cite{Buterin2021}.
+\item test
+\item test
+\item test
+\end{itemize}
+
+
+\subsection{Subsection 2} 
+\label{subsec:subsection2}
+
+\lipsum[5]
+
+\begin{figure}
+    \label{fig:arcadia-logo}
+    \centering
+    \includegraphics[width=0.3\textwidth]{images/Logo-Arcadia.png}
+    \caption{Example of an image.}
+    \Description{Example of an image.}
+  \end{figure}
+
+\section{Section 2} 
+\label{sec:section2}
+
+\lipsum[6]
+
+
+\section{Summary}
+\lipsum[7]
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{main}
+
+\section*{Disclaimer}
+\lipsum[8]
+
+\end{document}
+
+\endinput
