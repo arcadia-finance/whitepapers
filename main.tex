@@ -37,7 +37,112 @@
 \section{Introduction} 
 \label{sec:introduction}
 
-\lipsum[2]
+This paper will explain the rationale why we are building the Arcadia Finance Technology Stack, and go over its technical implementation.
+
+The Arcadia Financial Technology Stack is a set of on-chain, inter-linked financial protocols, centered around collateral management.
+They facilitate non-trusting peers or contracts to close financial contracts without the need of intermediaries.
+
+It consists out of three protocols, each with distinct responsibilities and permissions:
+\begin{itemize}
+\item The Arcadia Registry.
+\item Arcadia Accounts.
+\item A Creditor contract.
+\end{itemize}
+
+\subsection{Terminology}
+We will often use the terms Debtors and Creditors throughout this paper, our definition is broader as the commonly accepted context within traditional debt arrangements.
+We use the term Debtor for any entity with financial liabilities on the balance sheet (borrowers, option writers, payers of cash-settled futures contract or swaps...). 
+While the Creditor refers to the entity to whom the liability is owed.
+
+\subsection{Collateral Management}
+Withing the financial system, Collateral serves a primary function in mitigating the counterparty risks borne by Creditors, in case Debtors would fail to fulfill their financial liabilities.
+
+\subsubsection{History}
+Evidence of collateralized loans, also known as secured loans, can be traced back to at least 400 BCE in Ancient Greece  \cite{millett2002lending}.
+In these early transactions, borrowers provided tangible assets as collateral to secure loans, laying the foundation for the concept of collateralization.
+
+Over the past decades we have witnessed significant advancements in collateral management practices. 
+On the one hand, with the rise of complex financial instruments and the globalization of markets, the role of collateral has expanded beyond traditional lending to secure a wide range of financial instruments,
+including derivatives trading, margin accounts, and other sophisticated financial contracts.
+
+On the other hand, the digitalisation of the financial system greatly improved the efficiency of the exchange and settlement of collateral.
+Reporting, margining and reconciliation processes could be executed on a daily basis instead of on a weekly or even monthly basis \cite{simmons2019collateral}.
+
+The emergence of blockchain technology and decentralized finance (DeFi) led to a new wave of innovation for collateral management.
+Blockchain has some excellent properties with regards to collateral management:
+\begin{itemize}
+    \item With it's immutable and transparent ledger, collateral can be audited 24/7.
+    \item Smart contracts enforce margin requirements real time on a 24/7 continuous basis.
+    \item The atomic execution of transactions avoid expensive reconciliation processes.
+    \item The atomic execution also enables optimistic execution of transactions (e.g. flash loans) which can greatly improve processes such as refinancing loans or even enable completely new financial use-cases.
+    \item The permissionless nature of blockchain and Dapps (Decentralised Applications), combined with a shared state between all those applications, make different financial applications and assets composable and inter-operable by default.
+\end{itemize}
+
+It is no coincidence that some of the first blockchain applications with product market fit, were secured secured lending protocols.
+These early pioneers like Maker\cite{team2017dai}, Aave\cite{thornburg2020aave} or Compound\cite{leshner2019compound} relied on collateralization as the only way to mitigate counter party risks and work with over-collateralized loans.
+As such they enable peer-to-peer or even peer-to-contract loans, without the need of any trusted intermediaries.
+
+\subsubsection{Shortcomings}
+Collateralization, both in the traditional financial world and in DeFi, is not without its problems.
+Recent crisis in both industries industries highlight the need for better collateral management infrastructure.
+
+Bad collateral management, rehypothecation of collateral, opaque accounting practices of collateral, and outright fraud with collateralized assets, are all cited as root causes\cite{hellwig2008causes} behind the 2008 financial crisis.
+Following the crisis, a variety of major regulations were introduced (e.g. EMIR in the European Union, or Dodd-Frank in the USA).
+While these packages were successful in stabilizing the financial system, they have clear centralization tendencies\cite{gregory2014central}.
+The major beneficiaries of said regulations are the major financial institutions, mandatory intermediaries for central clearing and the regulatory bodies themselves.
+This might paradoxically cement even greater systemic risks into the system.
+
+In 2021 and 2022 DeFi experienced it's own financial crisis.
+Where in a few months many of the ecosystem's key (albeit mostly centralised) players collapsed, removing all liquid with them.
+Again bad collateral management, rehypothecation of collateral, opaque protocol mechanisms, and outright fraud with collateralized assets are at the root of the problem.
+
+A recurring trend with protocols that imploded in 2021 and 2022 is that the lack of collateralization was obfuscated behind complex protocol designs and narratives. 
+Some of the notorious examples are:
+\begin{itemize}
+    \item Synthetic stable-tokens such as Gaia-USDf, Iron-Titan and Luna-Terra.
+    \item Olympus and its forks relying on the (3,3) model.
+    \item Protocols where the only utility of a token is to receive more of the token itself (yield farms, reflective tokens…).
+    \item Unsecured loans by market makers and CeFi players.
+\end{itemize}
+
+\subsubsection{Shortcomings 2}
+Next to the aforementioned under-collateralized protocols, also the over-collateralized protocols are not without problems.
+
+A major problems in DeFi today is the number of hacks and exploits, estimates of total funds lost in 2023 range from \$400M to \$1B.
+
+During the last months many solutions were proposed by different protocols and stakeholders on how to build a more robust decentralised financial system.
+Notable papers are for instance from Morpho\cite{gontier2023morpho} and Euler\cite{euler2023protocols}.
+Both mention similar concepts as the distinction between product and protocol, modularization of the protocol, oracle agnostic implementations and explicitly separating the protocol in different layers.
+
+Many concepts resonate with the Arcadia team, but in others we take a different approach.
+Both focus on isolated lending primitives, while there
+
+A second problem we identified is that the logic to price and manage collateral is always DeFi protocols itself:
+- Redundant logic
+- Core pricing logic is rewritten and re-deployed time and time again, with each new deployment, new bugs can be introduced.
+Relying on Battle tested code both benefits smart contract developers, users and the overall ecosystem
+
+Given the importance and nature of collateral, infrastructure to price collateral is of key importance that it should be safe:
+- Should be safe
+- Should be gas efficient
+- Should be liquid
+- Should be Should be resistant to price manipulation via flash loans
+- The size of the liability it backs, should be small compared to the liquid market size.
+
+\subsubsection{The way forward}
+
+Different layers of the financial stack should have different life-cycles and innovation timelines.
+With the lowest most core component the slowest moving, while the user facing upper layers must evolve and adapt quick in response ever faster changing markets.
+
+Bringing back pristine focus to collateralization is exactly what we are doing with Arcadia Finance.
+We believe that taking a collateral management first approach results in overall better DeFi protocols. 
+
+Arcadia strives to enable higher capital efficiency for users, transparent risk assessment, faster go-to-market time for new protocols without compromising on self-custody and decentralisation.
+
+\section{Arcadia Registry}
+\label{sec:arcadia-registry}
+The registry is a modular and append-only registry for pricing logic and risk data of on-chain assets.
+to
 
 
 \section{Section 1} 
@@ -51,7 +156,7 @@
 \lipsum[4]
 
 \begin{itemize}
-\item test \cite{Buterin2021}.
+\item test
 \item test
 \item test
 \item test
