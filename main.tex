@@ -27,20 +27,25 @@
 \begin{document}
 
 \begin{abstract}
-    \lipsum[1]
+    The overarching vision of Arcadia Finance extends to building a standardized on-chain infrastructure for collateral management,
+    unlocking the capital in diverse DeFi assets, and establishing a comprehensive platform for managing collateralized positions. 
+
+    As we anticipate the continued growth of on-chain tokenized assets and financial primitives, the importance of standardized and efficient collateral management becomes increasingly paramount.
+    Without it, the full potential of these assets and financial primitives remains unrealized, hindered by protocol inflexibility and fragmentation.
+
+    Arcadia strives to enable higher capital efficiency for users, transparent risk assessment, faster go-to-market time for new protocols without compromising on security, self-custody and decentralisation.
 \end{abstract}
 
-\keywords{DeFi, EVM, collateral}
+\keywords{Collateral management, DeFi, EVM}
 
 \maketitle
 
 \section{Introduction} 
 \label{sec:introduction}
-
 This paper will explain the rationale why we are building the Arcadia Finance Technology Stack, and go over its technical implementation.
 
 The Arcadia Financial Technology Stack is a set of on-chain, inter-linked financial protocols, centered around collateral management.
-They facilitate non-trusting peers or contracts to close financial contracts without the need of intermediaries.
+They facilitate non-trusting peers to close financial contracts without the need of intermediaries.
 
 It consists out of three protocols, each with distinct responsibilities and permissions:
 \begin{itemize}
@@ -49,21 +54,24 @@ It consists out of three protocols, each with distinct responsibilities and perm
 \item A Creditor contract.
 \end{itemize}
 
-\subsection{Terminology}
-We will often use the terms Debtors and Creditors throughout this paper, our definition is broader as the commonly accepted context within traditional debt arrangements.
+\section{Terminology}
+\textsc{Debtors and Creditors:} We will often use the terms Debtors and Creditors throughout this paper, our definition is broader than the commonly accepted context within traditional debt arrangements.
 We use the term Debtor for any entity with financial liabilities on the balance sheet (borrowers, option writers, payers of cash-settled futures contract or swaps...). 
 While the Creditor refers to the entity to whom the liability is owed.
 
-\subsection{Collateral Management}
+\textsc{Open position:} The size of the liability that a specific Debtor has with a specific Creditors.
+
+\section{Collateral Management}
 Withing the financial system, Collateral serves a primary function in mitigating the counterparty risks borne by Creditors, in case Debtors would fail to fulfill their financial liabilities.
 
-\subsubsection{History}
+\subsection{Brief History}
+\label{subsec:history}
 Evidence of collateralized loans, also known as secured loans, can be traced back to at least 400 BCE in Ancient Greece  \cite{millett2002lending}.
 In these early transactions, borrowers provided tangible assets as collateral to secure loans, laying the foundation for the concept of collateralization.
 
 Over the past decades we have witnessed significant advancements in collateral management practices. 
-On the one hand, with the rise of complex financial instruments and the globalization of markets, the role of collateral has expanded beyond traditional lending to secure a wide range of financial instruments,
-including derivatives trading, margin accounts, and other sophisticated financial contracts.
+On the one hand, with the rise of complex financial instruments and the globalization of markets, the role of collateral has expanded beyond traditional lending.
+Collateral is now used to secure wide range of financial instruments, including derivatives trading, margin accounts, and other sophisticated financial contracts.
 
 On the other hand, the digitalisation of the financial system greatly improved the efficiency of the exchange and settlement of collateral.
 Reporting, margining and reconciliation processes could be executed on a daily basis instead of on a weekly or even monthly basis \cite{simmons2019collateral}.
@@ -78,95 +86,189 @@ Blockchain has some excellent properties with regards to collateral management:
     \item The permissionless nature of blockchain and Dapps (Decentralised Applications), combined with a shared state between all those applications, make different financial applications and assets composable and inter-operable by default.
 \end{itemize}
 
-It is no coincidence that some of the first blockchain applications with product market fit, were secured secured lending protocols.
-These early pioneers like Maker\cite{team2017dai}, Aave\cite{thornburg2020aave} or Compound\cite{leshner2019compound} relied on collateralization as the only way to mitigate counter party risks and work with over-collateralized loans.
+It is no coincidence that some of the first blockchain applications with product market fit, were secured lending protocols.
+These early pioneers like Maker\cite{team2017dai}, Aave\cite{thornburg2020aave} or Compound\cite{leshner2019compound} rely on collateralization as the only way to mitigate counter party risks and work with over-collateralized loans.
 As such they enable peer-to-peer or even peer-to-contract loans, without the need of any trusted intermediaries.
 
-\subsubsection{Shortcomings}
+\subsection{Collateral management in crisis}
 Collateralization, both in the traditional financial world and in DeFi, is not without its problems.
-Recent crisis in both industries industries highlight the need for better collateral management infrastructure.
+Recent crises in both industries highlight the need for better collateral management infrastructure.
 
-Bad collateral management, rehypothecation of collateral, opaque accounting practices of collateral, and outright fraud with collateralized assets, are all cited as root causes\cite{hellwig2008causes} behind the 2008 financial crisis.
+Bad collateral management, rehypothecation of collateral, opaque accounting practices of collateral,
+and outright fraud with collateralized assets, are all cited as root causes\cite{hellwig2008causes} behind the 2008 financial crisis.
 Following the crisis, a variety of major regulations were introduced (e.g. EMIR in the European Union, or Dodd-Frank in the USA).
 While these packages were successful in stabilizing the financial system, they have clear centralization tendencies\cite{gregory2014central}.
-The major beneficiaries of said regulations are the major financial institutions, mandatory intermediaries for central clearing and the regulatory bodies themselves.
+The major beneficiaries of said regulations are the major established institutions, mandatory intermediaries for central clearing, central banks and the regulatory bodies themselves.
 This might paradoxically cement even greater systemic risks into the system.
 
-In 2021 and 2022 DeFi experienced it's own financial crisis.
-Where in a few months many of the ecosystem's key (albeit mostly centralised) players collapsed, removing all liquid with them.
-Again bad collateral management, rehypothecation of collateral, opaque protocol mechanisms, and outright fraud with collateralized assets are at the root of the problem.
+In 2022 DeFi experienced it's own financial crisis.
+In a few months many of the ecosystem's key (albeit mostly centralised) players collapsed, and removed all liquid with them.
+Again bad collateral management, rehypothecation of collateral, opaque protocol mechanisms, and outright fraud with collateralized assets were at the root of the problem.
 
 A recurring trend with protocols that imploded in 2021 and 2022 is that the lack of collateralization was obfuscated behind complex protocol designs and narratives. 
 Some of the notorious examples are:
 \begin{itemize}
     \item Synthetic stable-tokens such as Gaia-USDf, Iron-Titan and Luna-Terra.
     \item Olympus and its forks relying on the (3,3) model.
-    \item Protocols where the only utility of a token is to receive more of the token itself (yield farms, reflective tokens…).
+    \item Protocols where the only utility of a token is to receive more of the token itself (animal yield farms, reflective tokens…).
     \item Unsecured loans by market makers and CeFi players.
 \end{itemize}
 
-\subsubsection{Shortcomings 2}
-Next to the aforementioned under-collateralized protocols, also the over-collateralized protocols are not without problems.
+The over-collateralized DeFi protocols however, operated remarkably well during the aforementioned crisis, even better than their traditional counterparts.
+This is well illustrated by some of the collapsed centralised entities, active in the space until 2022, that had both on- and off-chain liabilities.
+All on-chain Creditors were repaid in a timely and orderly fashion, as enforced by their smart contracts.
+While the lawsuits for the many off-chain Creditors are still ongoing (and probably will be for many years).
 
-A major problems in DeFi today is the number of hacks and exploits, estimates of total funds lost in 2023 range from \$400M to \$1B.
+It is for these types of crises that liabilities are secured in the first place.
+These events further strengthened our vision that blockchain-based protocols have the potential to become the dominant infrastructure for collateral management.
+But before we get there, a number of Inefficiencies of in current DeFi protocols must be overcome, as we will discuss in the next Section.
+
+\subsection{Inefficiencies of "real DeFi"}
+
+In the next sections we will highlight a number of inefficiencies,
+which need to be overcome before DeFi can be broadly adopted as the go-to infrastructure for collateral management.
+
+\subsubsection{Hacks and exploits}
+\label{subsubsec:hacks-and-exploits}
+
+The major problem in DeFi today is the number of hacks and exploits, the estimated amount of funds lost in 2023 ranges from \$400M to \$1B.
+There are many security related practices the sector as a whole should improve on, but we want to highlight one problem.
+
+Almost all DeFi protocols use over-collateralization in some way of form to manage counterparty risks between different user-groups.
+Lending protocols, perpetual protocol, Prime brokerage protocols, option protocols etc. all require some or all users to deposit collateral.
+While the nature of the financial contracts may be very different for each of these protocols, they share a great amount of common logic:
+\begin{itemize}
+    \item Pricing of collateralized assets.
+    \item Management (depositing, withdrawing...) of collateralized assets.
+    \item asset-liability specific risk parameters and calculations.
+    \item Margin calls and liquidations of risky positions.
+    \item Settling bad debt.
+\end{itemize}
+
+Pricing of assets, management of assets and liquidation logic is complex, error prone and most mistakes easily lead to severe user losses.
+Today all protocols implement these redundantly, even for new versions of the same protocol. 
+Not only is this very costly in development time, the core logic is rewritten and re-deployed time and time again, and with each new deployment, new bugs can be introduced.
+
+Being able to build on top of battle tested code would benefit smart contract developers, protocols, users and the overall ecosystem.
+
+\subsubsection{Fragmented and isolated collateral}
+
+The average DeFi-user has collateralized assets fragmented and isolated across a multitude of protocols (do we have any numbers on this?), and many quality assets are sitting idle.
+While isolated margin positions have there benefits (they isolate risks), they are not capital efficient.
+Having the ability to use a portfolio of assets as collateral improves the capital efficiency for a number of reasons:
+\begin{itemize}
+    \item The volatility of a portfolio of assets is always equal to, or lower than the weighted volatility of the individual assets.
+    Or put different, assets losing in value can be compensated with assets increasing in value.
+    \item Having less positions, with lower volatility, reduces the nu
+    \item Depending on the correlation between collateralized assets, the Creditor might use less strict margin requirement.
+    \item Debtors can use negatively correlated assets to hedge positions and limit liquidation risks.
+\end{itemize}
+
+Having a global shared state across applications and assets is often cited as one of the key advantages of blockchain over centralised financial infrastructures\cite{schar2021decentralized}.
+This should open up a whole new solution space for Debtors to manage collateralized positions, 
+and might even enable a single Debtor to share its margin between non-trusting Creditors without intermediaries.
+Hence it is quite ironic that traditional brokers and clearing houses offer more advanced capabilities for cross- and portfolio-margined positions, compared to the state-of-the-art DeFi protocol.
+
+Again there are again multiple underlying root causes why collateral in DeFi is still fragmented and under-utilized:
+\begin{itemize}
+    \item As mentioned in Section \ref{subsubsec:hacks-and-exploits}, there is no shared collateral management layer, each protocol with collateral has their own non-standardized implementation.
+    \item Protocols are build around specific assets types (eg. lending protocols for simple ERC20 or for AMM LPs, or for NFTs). 
+    Different asset types cannot be used within the same protocol to back a single position and emergence of new primitives/token standards requires migrations/new protocols.
+    \item Blockchain is still a young technology, core non-financial infrastructure required for on-chain portfolio management (think Account Abstraction, intents or cross-chain messaging) is only recently developed. 
+\end{itemize}
+
+Fragmentation of assets not only results in capital inefficiencies, it also contributes to a challenging user experience, more on that in the next Section (\ref{subsubsec:end-user-complexity}).
+
+\subsubsection{End user complexity}
+\label{subsubsec:end-user-complexity}
+
+Again related to the previously mentioned 
+End-user do not want to manage collateral, it is a means to an end.
+
+
+\subsection{The way forward (to do)}
+
+
+As mentioned at the end of Section \ref{subsec:history}, tokenised assets, smart contract and blockchain-based infrastructures are promising technologies for management of collateral and liabilities.
+Many blockchain solutions in DeFi struggle today due to technical limitations (blockchain trilemma) but for collateral management this is less relevant since mostly the number of tx is limited,
+while security, auditability and  are most important -> no surprise for both strong market fit in DeFi as the many project (permission blockchain) by the big players.
+
+Paragraphs To Do:
+-> Choice for DeFi
+-> Better protocol designs
 
 During the last months many solutions were proposed by different protocols and stakeholders on how to build a more robust decentralised financial system.
-Notable papers are for instance from Morpho\cite{gontier2023morpho} and Euler\cite{euler2023protocols}.
-Both mention similar concepts as the distinction between product and protocol, modularization of the protocol, oracle agnostic implementations and explicitly separating the protocol in different layers.
+Notable recent papers are for instance from Uniswap V4\cite{adams2023uniswap}, Morpho\cite{gontier2023morpho} and Euler\cite{euler2023protocols}.
+All mention similar concepts as the distinction between product and protocol, modularization of the protocol, oracle agnostic implementations and explicitly separating the logic of the protocol in different layers,
+where layers with different complexity evolve at different speeds.
 
-Many concepts resonate with the Arcadia team, but in others we take a different approach.
-Both focus on isolated lending primitives, while there
+Especially the last concept, to separate the logic in different layers, resonates with the long term vision of the Arcadia Finance team.
+Different Logic layers of the financial stack, with different complexities should have different life-cycles and innovation timelines.
+With the lowest most core component the slowest moving, while the upper user facing layers must evolve and adapt quick in response ever changing markets.
 
-A second problem we identified is that the logic to price and manage collateral is always DeFi protocols itself:
-- Redundant logic
-- Core pricing logic is rewritten and re-deployed time and time again, with each new deployment, new bugs can be introduced.
-Relying on Battle tested code both benefits smart contract developers, users and the overall ecosystem
+A good practical example is uniswap V4, where Uniswap Labs implements the underlying core mathematical logic for CLAMMs (Concentrated Liquidity Automated Market Makers).
+Other teams can build in a permissionless manner on top of the Uniswap V4 protocol and develop feature rich and fast innovating new DEXs, without the need and risks of redundantly implementing the complex maths.
 
-Given the importance and nature of collateral, infrastructure to price collateral is of key importance that it should be safe:
+Also over-collateralized protocols would benefit from a similar architecture.
+A shared standardized and permissionless layer with battle tested logic for collateral management, on top of which Creditors build their application specific financial contracts.
+
+Bringing back pristine focus to collateralization is exactly what we are doing with the Arcadia Financial Technology Stack.
+We believe that taking a collateral management first approach results in overall better DeFi protocols.
+
+\section{The Arcadia Financial Technology Stack}
+
+The overarching vision of Arcadia Finance is to build a standardized on-chain infrastructure for collateral management.
+
+As we anticipate the continued growth of on-chain tokenized assets and financial primitives, the importance of standardized and efficient collateral management becomes increasingly paramount.
+Without it, the full potential of these assets and financial primitives remains unrealized, hindered by protocol inflexibility and fragmentation.
+
+Arcadia strives to enable higher capital efficiency for users, transparent risk assessment, faster go-to-market time for new protocols without compromising on security, self-custody and decentralisation.
+
+
+
+the Arcadia Financial Technology Stack is implemented for the Ethereum Virtual Machine (EVM) and consists out of three protocols:
+\begin{itemize}
+\item The Arcadia Registry.
+\item Arcadia Accounts.
+\item A Creditor contract.
+\end{itemize}
+
+General overview of the protocols, design requirements, permissions.
+
+The goal of Arcadia is to build a 
+
+\lipsum[2]
+
+\section{Arcadia Registry}
+\label{sec:arcadia-registry}
+
+More details on requirements + technical implementation.
+
+The registry is a modular and append-only registry for pricing logic and risk data of on-chain assets.
+Given the importance and nature of collateral, infrastructure to price collateral is of key importance that collateral should be:
 - Should be safe
 - Should be gas efficient
 - Should be liquid
 - Should be Should be resistant to price manipulation via flash loans
 - The size of the liability it backs, should be small compared to the liquid market size.
 
-\subsubsection{The way forward}
-
-Different layers of the financial stack should have different life-cycles and innovation timelines.
-With the lowest most core component the slowest moving, while the user facing upper layers must evolve and adapt quick in response ever faster changing markets.
-
-Bringing back pristine focus to collateralization is exactly what we are doing with Arcadia Finance.
-We believe that taking a collateral management first approach results in overall better DeFi protocols. 
-
-Arcadia strives to enable higher capital efficiency for users, transparent risk assessment, faster go-to-market time for new protocols without compromising on self-custody and decentralisation.
-
-\section{Arcadia Registry}
-\label{sec:arcadia-registry}
-The registry is a modular and append-only registry for pricing logic and risk data of on-chain assets.
-to
-
-
-\section{Section 1} 
-\label{sec:section1}
-
 \lipsum[3]
 
-\subsection{Subsection 1} 
-\label{subsec:subsection1}
+\section{Arcadia Accounts}
+\label{sec:arcadia-accounts}
 
 \lipsum[4]
 
-\begin{itemize}
-\item test
-\item test
-\item test
-\item test
-\end{itemize}
+\section{Arcadia Creditor}
+\label{sec:arcadia-creditor}
 
-
-\subsection{Subsection 2} 
-\label{subsec:subsection2}
+\subsection{Generalised Creditor}
 
 \lipsum[5]
+
+\subsection{Arcadia Lending Pools}
+
+\lipsum[6]
 
 \begin{figure}
     \label{fig:arcadia-logo}
@@ -175,12 +277,6 @@ to
     \caption{Example of an image.}
     \Description{Example of an image.}
   \end{figure}
-
-\section{Section 2} 
-\label{sec:section2}
-
-\lipsum[6]
-
 
 \section{Summary}
 \lipsum[7]
