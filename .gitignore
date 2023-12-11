@@ -4,7 +4,6 @@
 *.toc
 *.out
 *.synctex.gz
-*.pdf
 
 # LaTeX editor temporary files
 *.swp

@@ -27,7 +27,10 @@
 \begin{document}
 
 \begin{abstract}
-    The overarching vision of Arcadia Finance extends to building a standardized on-chain infrastructure for collateral management,
+    (To Do)
+    Arcadia Finance introduces a novel on-chain architecture for collateral management of margined positions.
+
+    The overarching vision of Arcadia Finance is to build standardized on-chain infrastructure for collateral management,
     unlocking the capital in diverse DeFi assets, and establishing a comprehensive platform for managing collateralized positions. 
 
     As we anticipate the continued growth of on-chain tokenized assets and financial primitives, the importance of standardized and efficient collateral management becomes increasingly paramount.
@@ -40,7 +43,7 @@
 
 \maketitle
 
-\section{Introduction} 
+\section{Introduction (To Do)} 
 \label{sec:introduction}
 This paper will explain the rationale why we are building the Arcadia Finance Technology Stack, and go over its technical implementation.
 
@@ -55,26 +58,43 @@ It consists out of three protocols, each with distinct responsibilities and perm
 \end{itemize}
 
 \section{Terminology}
-\textsc{Debtors and Creditors:} We will often use the terms Debtors and Creditors throughout this paper, our definition is broader than the commonly accepted context within traditional debt arrangements.
-We use the term Debtor for any entity with financial liabilities on the balance sheet (borrowers, option writers, payers of cash-settled futures contract or swaps...). 
+\textsc{Debtors and Creditors:} We will often use the terms Debtors and Creditors throughout this paper,
+our definition is broader than the commonly accepted context within traditional debt arrangements.
+We use the term Debtor for any holder of a financial instrument that results in liabilities on the balance sheet 
+(borrowers, option writers, payers of cash-settled futures contract or swaps...). 
 While the Creditor refers to the entity to whom the liability is owed.
 
 \textsc{Open position:} The size of the liability that a specific Debtor has with a specific Creditors.
 
-\section{Collateral Management}
+\textsc{Collateral:} The assets pledged by a Debtor to a Creditor to cover the credit risk in case the Debtor would default.
+
+\textsc{Margin:} The value of collateral assets that a Debtor must hold in a Margin Account to cover the credit risk of its Creditor(s).
+The margin requirements, are set by the Creditor.
+In general there are two types of margin requirements: Initial Margin (minimum value of collateral that must be held in the margin account to open a new position)
+and Maintenance Margin (minimum value of collateral that must be held in the margin account to keep an existing position open).
+
+\textsc{Margin Account:} Our definition of a Margin Account extends beyond the conventional usage within Brokerage Accounts. 
+The holder of a Margin Account not only has the ability to utilize and transact with the assets within the account (as is the case with a cash account or your standard crypto wallet),
+but can also incur liabilities against those assets. The margin requirements (initial and maintenance margin) are set by the Creditor.
+
+\section{History of Collateral Management}
+\label{subsec:history}
+
 Withing the financial system, Collateral serves a primary function in mitigating the counterparty risks borne by Creditors, in case Debtors would fail to fulfill their financial liabilities.
 
-\subsection{Brief History}
-\label{subsec:history}
+\subsection{Origin}
 Evidence of collateralized loans, also known as secured loans, can be traced back to at least 400 BCE in Ancient Greece  \cite{millett2002lending}.
 In these early transactions, borrowers provided tangible assets as collateral to secure loans, laying the foundation for the concept of collateralization.
 
-Over the past decades we have witnessed significant advancements in collateral management practices. 
-On the one hand, with the rise of complex financial instruments and the globalization of markets, the role of collateral has expanded beyond traditional lending.
-Collateral is now used to secure wide range of financial instruments, including derivatives trading, margin accounts, and other sophisticated financial contracts.
+\subsection{Current State}
+Over the past decades we have witnessed significant advancements in collateral management practices.
 
-On the other hand, the digitalisation of the financial system greatly improved the efficiency of the exchange and settlement of collateral.
+With the rise of complex financial instruments and the globalization of markets, the role of collateral has expanded beyond traditional lending.
+Collateral is now used to secure a wide range of financial instruments, including derivatives trading, margin accounts, and other sophisticated financial contracts.
+
+The digitalisation of the financial system greatly improved the efficiency of the exchange and settlement of collateral.
 Reporting, margining and reconciliation processes could be executed on a daily basis instead of on a weekly or even monthly basis \cite{simmons2019collateral}.
+% Add some figures or numbers here?
 
 The emergence of blockchain technology and decentralized finance (DeFi) led to a new wave of innovation for collateral management.
 Blockchain has some excellent properties with regards to collateral management:
@@ -99,10 +119,10 @@ and outright fraud with collateralized assets, are all cited as root causes\cite
 Following the crisis, a variety of major regulations were introduced (e.g. EMIR in the European Union, or Dodd-Frank in the USA).
 While these packages were successful in stabilizing the financial system, they have clear centralization tendencies\cite{gregory2014central}.
 The major beneficiaries of said regulations are the major established institutions, mandatory intermediaries for central clearing, central banks and the regulatory bodies themselves.
-This might paradoxically cement even greater systemic risks into the system.
+This might paradoxically cement even greater systemic risks into the financial system.
 
 In 2022 DeFi experienced it's own financial crisis.
-In a few months many of the ecosystem's key (albeit mostly centralised) players collapsed, and removed all liquid with them.
+In a few months time, many of the ecosystem's key (albeit mostly centralised) players collapsed, and removed all liquid with them.
 Again bad collateral management, rehypothecation of collateral, opaque protocol mechanisms, and outright fraud with collateralized assets were at the root of the problem.
 
 A recurring trend with protocols that imploded in 2021 and 2022 is that the lack of collateralization was obfuscated behind complex protocol designs and narratives. 
@@ -114,6 +134,9 @@ Some of the notorious examples are:
     \item Unsecured loans by market makers and CeFi players.
 \end{itemize}
 
+DeFi protocols should focus more on collateralization, and less on Complex tokenomics that obfuscate who ends up paying when things go bad.
+
+\subsection{The Future?}
 The over-collateralized DeFi protocols however, operated remarkably well during the aforementioned crisis, even better than their traditional counterparts.
 This is well illustrated by some of the collapsed centralised entities, active in the space until 2022, that had both on- and off-chain liabilities.
 All on-chain Creditors were repaid in a timely and orderly fashion, as enforced by their smart contracts.
@@ -123,7 +146,11 @@ It is for these types of crises that liabilities are secured in the first place.
 These events further strengthened our vision that blockchain-based protocols have the potential to become the dominant infrastructure for collateral management.
 But before we get there, a number of Inefficiencies of in current DeFi protocols must be overcome, as we will discuss in the next Section.
 
-\subsection{Inefficiencies of "real DeFi"}
+\section{Collateral Management in DeFi}
+\subsection{General Principles}
+% To Do, use picture, keep it high level
+
+\subsection{Inefficiencies}
 
 In the next sections we will highlight a number of inefficiencies,
 which need to be overcome before DeFi can be broadly adopted as the go-to infrastructure for collateral management.
@@ -152,6 +179,7 @@ Not only is this very costly in development time, the core logic is rewritten an
 Being able to build on top of battle tested code would benefit smart contract developers, protocols, users and the overall ecosystem.
 
 \subsubsection{Fragmented and isolated collateral}
+\label{subsubsec:fragmented-collateral}
 
 The average DeFi-user has collateralized assets fragmented and isolated across a multitude of protocols (do we have any numbers on this?), and many quality assets are sitting idle.
 While isolated margin positions have there benefits (they isolate risks), they are not capital efficient.
@@ -182,21 +210,38 @@ Fragmentation of assets not only results in capital inefficiencies, it also cont
 \subsubsection{End user complexity}
 \label{subsubsec:end-user-complexity}
 
-Again related to the previously mentioned 
-End-user do not want to manage collateral, it is a means to an end.
+End-user do not "want" to manage collateral, they want to optimize portfolio's to achieve a certain objective (e.g. increase yield, delta hedging, diversify exposure to different protocols...).
+Collateral management is a means to an end, it is not an activity most users enjoy doing.
 
+End-user adoption will only increase outside of a niche bubble of tech enthusiasts if the technical complexities around collateral management are be abstracted away.
+Important note, abstracting away technical complexities should never come at a cost of hiding risks or relying on centralised and custodial solutions (as is to often the case).
 
-\subsection{The way forward (to do)}
+As mentioned in the previous Section \ref{subsubsec:fragmented-collateral}, the bad user experience is partly due to the fragmentation of assets and positions.
+Rebalancing portfolio's often require multiple transactions per asset and per position.
+Today the user has to execute multiple sequential transactions per asset, instead a single transaction that rebalances the complete portfolio.
+Let's take as example a user that wants to earn yield from his collateralized assets and get exposure to Liquid Staking Tokens (LSTs).
+Since LST protocols introduce an additional layer of risk, he wants to diversify risks over 5 different LST service providers.
+Assuming our user has wrapped Ethereum, he would need to do 10 transactions via multiple platforms (5 approvals and 5 swaps or 5 approvals and 5 staking actions).
+Rebalancing said portfolio, or depositing it as collateral, would require another 5 to 10 transactions.
+Not only is this time consuming, it also introduces additional operational risks, to name a few:
+ \begin{itemize}
+    \item Herstatt risk (settlement risk) due to changing markets before each leg of the action is settled.
+    \item Increased risk of manual mistakes (fat fingers, bad slippage settings).
+    \item Increased risk of falling victim phishing attacks on one of the platforms.. 
+\end{itemize}
 
+A second abstraction is to let users define what they want, and provide them with the information (the calldata) how to do it.
+Since most collateral management actions require interactions with multiple assets/protocols,
+this abstraction can only be achieved after portfolio's as a whole can be managed with a single atomic transaction.
 
-As mentioned at the end of Section \ref{subsec:history}, tokenised assets, smart contract and blockchain-based infrastructures are promising technologies for management of collateral and liabilities.
-Many blockchain solutions in DeFi struggle today due to technical limitations (blockchain trilemma) but for collateral management this is less relevant since mostly the number of tx is limited,
-while security, auditability and  are most important -> no surprise for both strong market fit in DeFi as the many project (permission blockchain) by the big players.
+At the time of writing this paper, the required infrastructure to enable both abstractions, is heavily debated within the broader ecosystem and multiple proposals are launched to standardize the infrastructure.
+Most notable are the proposals for Account Abstraction (e.g. EIP-3074 and EIP-4337) and for Intent based architectures (e.g. EIP-7521)
 
-Paragraphs To Do:
--> Choice for DeFi
--> Better protocol designs
+Both abstractions are already successfully applied (albeit in a somewhat non-standardized form) within DeFi by Decentralised Exchanges, NFT-marketplaces and their aggregators.
 
+Our philosophy is that users should express what they want to do, not how they do it.
+
+\subsection{New Architectures}
 During the last months many solutions were proposed by different protocols and stakeholders on how to build a more robust decentralised financial system.
 Notable recent papers are for instance from Uniswap V4\cite{adams2023uniswap}, Morpho\cite{gontier2023morpho} and Euler\cite{euler2023protocols}.
 All mention similar concepts as the distinction between product and protocol, modularization of the protocol, oracle agnostic implementations and explicitly separating the logic of the protocol in different layers,
@@ -215,16 +260,8 @@ A shared standardized and permissionless layer with battle tested logic for coll
 Bringing back pristine focus to collateralization is exactly what we are doing with the Arcadia Financial Technology Stack.
 We believe that taking a collateral management first approach results in overall better DeFi protocols.
 
+
 \section{The Arcadia Financial Technology Stack}
-
-The overarching vision of Arcadia Finance is to build a standardized on-chain infrastructure for collateral management.
-
-As we anticipate the continued growth of on-chain tokenized assets and financial primitives, the importance of standardized and efficient collateral management becomes increasingly paramount.
-Without it, the full potential of these assets and financial primitives remains unrealized, hindered by protocol inflexibility and fragmentation.
-
-Arcadia strives to enable higher capital efficiency for users, transparent risk assessment, faster go-to-market time for new protocols without compromising on security, self-custody and decentralisation.
-
-
 
 the Arcadia Financial Technology Stack is implemented for the Ethereum Virtual Machine (EVM) and consists out of three protocols:
 \begin{itemize}
@@ -234,8 +271,8 @@ the Arcadia Financial Technology Stack is implemented for the Ethereum Virtual M
 \end{itemize}
 
 General overview of the protocols, design requirements, permissions.
-
-The goal of Arcadia is to build a 
+- General philosophy: creditor is the maker, debtor is the taker.
+- Append only, no overwriting 
 
 \lipsum[2]
 
@@ -252,10 +289,49 @@ Given the importance and nature of collateral, infrastructure to price collatera
 - Should be Should be resistant to price manipulation via flash loans
 - The size of the liability it backs, should be small compared to the liquid market size.
 
+\subsection{Many assets to one pricing}
+Creditor sets "routing".
+
+\subsection{Modular pricing logic}
+Append only
+
+
+\subsection{Risk Mitigation}
+It is impossible to guarantee that every module will always be bug free.
+A protocol where new pricing modules can be appended, but that relies on the assumption that all bugs will be caught before deployment of each module, is bound to fail.
+A bug in a single module should not lead to the end of the entire protocol and to all protocols build on top of it.
+
+The probability that bugs might occur in a module at some point should be taken into account in the protocol design.
+This consists of three steps: impact mitigation, impact isolation and module replacement.
+
+Risk parameters should be granular enough to be able to capture the smart contract risk for novel modules.
+Different Creditors should be able to decide when they enable their debtors to use assets priced by a certain module as collateral.
+And when they decide to enable the module, set upper boundaries to the overall exposure to said modules.
+As such, if one module is faulty, it should be possible to mitigate it's impact.
+
+After a bug is identified
+
 \lipsum[3]
 
 \section{Arcadia Accounts}
 \label{sec:arcadia-accounts}
+
+\subsection{Multi-collateral}
+
+\subsection{Token Standard Agnostic}
+
+\subsection{Margin Accounts}
+
+\subsection{Account Abstraction ready}
+
+\subsection{Flash Accounting}
+
+\subsection{Intent ready}
+
+\subsection{Automated Asset Management}
+
+\subsection{Upgradeability}
+
 
 \lipsum[4]
 
@@ -263,6 +339,14 @@ Given the importance and nature of collateral, infrastructure to price collatera
 \label{sec:arcadia-creditor}
 
 \subsection{Generalised Creditor}
+
+\subsection{Composable}
+
+\subsection{Risk Management}
+
+\subsection{Accounting Liabilities}
+
+\subsection{Liquidations}
 
 \lipsum[5]
 
