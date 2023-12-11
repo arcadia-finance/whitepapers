@@ -243,7 +243,7 @@ Our philosophy is that users should express what they want to do, not how they d
 
 \subsection{New Architectures}
 During the last months many solutions were proposed by different protocols and stakeholders on how to build a more robust decentralised financial system.
-Notable recent papers are for instance from Uniswap V4\cite{adams2023uniswap}, Morpho\cite{gontier2023morpho} and Euler\cite{euler2023protocols}.
+Notable recent papers are from Uniswap V4\cite{adams2023uniswap}, Morpho\cite{gontier2023morpho} and Euler\cite{euler2023protocols}.
 All mention similar concepts as the distinction between product and protocol, modularization of the protocol, oracle agnostic implementations and explicitly separating the logic of the protocol in different layers,
 where layers with different complexity evolve at different speeds.
 
@@ -311,12 +311,21 @@ As such, if one module is faulty, it should be possible to mitigate it's impact.
 
 After a bug is identified
 
-\lipsum[3]
+
 
 \section{Arcadia Accounts}
 \label{sec:arcadia-accounts}
 
 \subsection{Multi-collateral}
+By allowing multiple types of assets to be deposited within a single Account, users, institutions and protocols can build diversified portfolio's.
+The list of asset(types) that can be deposited in Arcadia Accounts is continuously being expanded. Our goal is for users to unlock capital of any quality, price-able DeFi primitive.
+
+Each Creditor can determine themselves which asset(types) are to be allowed as collateral in Accounts of their Debtors.
+
+\subsection{Composable}
+Arcadia Accounts themselves are according to the ERC-721 standard and can thus be represented as a single asset.
+This means that Accounts are fully composable with existing infrastructure and are straightforward to integrate.
+Other benefits are that Accounts can be tracked and monitored trough existing DeFi dashboards and it opens up use-cases where Accounts can be sold in their entirety (both assets and liabilities) on existing NFT marketplaces.
 
 \subsection{Token Standard Agnostic}
 
@@ -324,16 +333,56 @@ After a bug is identified
 
 \subsection{Account Abstraction ready}
 
-\subsection{Flash Accounting}
+\subsection{Flash Actions}
+Flash Actions (or optimistic Actions or flash accounting) expands on the concept of flashloans, and are only possible thanks to a unique property of smart contracts: atomicity\cite{xie2022towards}.
+Just as with flashloans, each step of the Flash Action must be successful or the transaction as a whole fails.
+The final health check of the Account (assets can cover all liabilities) is done at the very end of the transaction.
+This allows the Account Owner to temporary bring the Account in an undercollateralized (or even non collateralized state) without the risk on bad debt for any Creditor.
+Since if the Account is not brought back into a healthy state during the transaction, the final health check fails and thanks to atomicity the whole transaction fails.
+
+This gives Account Owners unprecedented flexibility to manage assets and liabilities.
+In a fully permissionless way they can chain the following together (= do a flash action):
+\begin{itemize}
+    \item A margin Account can be opened for a new Creditor, if the new Creditor is approved by the Account Owner.
+    \item The Creditor can execute arbitrary logic (e.g. give a flashloan).
+    \item The Account owner can optimistically withdraw assets from the Account.
+    \item The Account owner can transfer assets from his own wallet to the Account or external logic.
+    \item The Account owner can execute external logic, where he uses the assets (loaned, withdrawn or transferred) to interact with multiple DeFi protocols to swap, stake, claim...
+    \item The Account owner can deposit recipient tokens back into the Account.
+\end{itemize}
+The only requirement is that the Account is in a healthy state at the very end of the flash action.
+
+Flash Actions are a very powerful tool that has no equal in traditional finance.
+We will list a few examples how flash actions from an Arcadia Account can be used out of the box (the list is far from exhaustive).
+And keep in mind that all of these actions can be done, even if the assets are used to secure liabilities.
+
+\begin{itemize}
+    \item Rebalance whole portfolio's, swapping a portfolio of n different assets directly to a new portfolio of m different assets.
+    \item Refinance liabilities (change to a different Creditors), without the need to sell any collateral.
+    \item Stake or provide liquidity on approved DeFi protocols.
+    External protocols used in this context will need to provide a receipt token which must be allowed as collateral as well within the Arcadia protocol.
+    Examples can be providing liquidity on Aave (receiving approved aTokens), depositing assets on Yearn (receiving approved yTokens), …
+    \item Change ranges for Uniswap V3 LP. Contrary to Uni V2 and similar AMMs, Uni V3 positions are meant to be more actively managed in terms of liquidity ranges.
+    Users that deposit Uni V3 positions in their Arcadia Accounts will have the ability to change those liquidity ranges without having to withdraw their tokens first.
+    \item Claim airdrops that depend on address-owned tokens. Arcadia Accounts will feature “flash withdrawals”.
+    This feature can be used by the Account owner to claim airdrops using assets under collateral within their Arcadia Account, without having to close DeFi positions to withdraw their tokens first.
+    \item ...
+\end{itemize}
 
 \subsection{Intent ready}
 
 \subsection{Automated Asset Management}
 
 \subsection{Upgradeability}
+Each deployed Account is linked to a certain Account logic contract.
+Account logic will include the features Account owners can benefit from, for example, flash withdrawals, active collateral management, authorization delegation, … 
+The Account logic is upgradable, but the user has full control if and when they want to upgrade to new logic.
+Should a user wish to use features newly introduced in an upcoming Account version, it will be up to them to upgrade the linked Account logic.
+Users will not have to migrate assets or close DeFi positions when doing so. 
 
-
-\lipsum[4]
+Creditors can determine which Account logic versions are allowed to be used by their Debtors.
+As such, highly-customized Account logic can be implemented for protocol-specific versions should this be required. 
+The Arcadia protocol can in no way change the version of a user-owned deployed Account, or change any functionality in existing Account logic.
 
 \section{Arcadia Creditor}
 \label{sec:arcadia-creditor}
