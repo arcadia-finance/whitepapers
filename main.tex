@@ -293,8 +293,54 @@ Given the importance and nature of collateral, infrastructure to price collatera
 Creditor sets "routing".
 
 \subsection{Modular pricing logic}
-Append only
+In the Arcadia protocol, there is not a single contract responsible for pricing assets, instead we work with a single Registry and multiple Pricing Modules.
+Each Pricing Module is a separate smart contract with the pricing logic for specific Oracle implementations or Asset types.
+The Registry keeps mappings per Creditor of which Module to use to price a certain asset.
 
+It is the Creditor itself that sets these mappings, the Creditor decides which Modules to use for each asset they allow their Debtors to use as collateral.
+Different Creditors can use different Modules to price the same asset, or a Creditor can choose to not allow certain assets at all.
+
+Modules can only be appended to the protocol, not removed or overwritten.
+This ensures that Pricing logic is immutable, but it still gives flexibility to add new assets, or implement more efficient Pricing logic.
+
+There are two categories of modules: Oracle Modules and Asset Modules.
+
+\subsubsection{Oracle Modules}
+Each different oracle implementation (e.g. Chainlink oracles, Pyth oracles, Uniswap TWAPs...) should have its own Oracle Module.
+The Oracle Module has two main functionalities.
+Firstly, it returns the oracle-rate in a standardized format.
+And secondly it checks if the oracles perform as intended.
+If not, non-functioning oracles are decommissioned.
+
+Each oracle has a quote-asset and a base-asset, the oracle-rate $R_{oracle}$ reflects how much units of the quote-asset are required to buy 1 unit of the base-asset.
+The precision $S_{oracle}$ of oracles is variable and can even be a binary fixed-point number.
+Since all pricing logic within the Arcadia Protocol uses fixed-point numbers with 18 decimals precision,
+a correction from the oracle precision to a precision of 18 decimals is required for the standardized oracle rate $R_{ba\rightarrow qa}$, returned by the Oracle Module.
+\begin{equation}
+    \label{eq:oracle-module}
+    R_{ba\rightarrow qa} = R_{oracle} \frac{10^{18}}{S_{oracle}}
+\end{equation}
+
+\subsubsection{Asset Modules}
+Just as each oracle implementation should have its own oracle Module, each asset type should have it's own Asset Module.
+Each Asset Module has three main functionalities:
+\begin{itemize}
+    \item Implement the pricing logic to calculate the USD value of an asset. 
+    \item Process Deposits and Withdrawals.
+    \item Manage Asset specific risk parameters.
+\end{itemize}
+
+Asset Modules can be further divided into two distinct groups: Primary Asset Modules and Derived Asset Modules.
+
+\subsubsection{Primary Asset Modules}
+Primary assets are defined as assets that are not composed of other assets.
+Primary Assets must be priced using one or more on-chain oracles, for which the values are fetched via the Oracle Modules.
+
+The Registry will enforce that each asset of a Primary asset is priced in USD with 18 decimals precision.
+Since the asset amount, $A_{asset}$, can have a variable precision $S_{asset}$, a correction is again applied to bring the usd-value of the asset $V_{asset}^{USD}$ to 18 decimals precision.
+
+Take as example 
+\subsubsection{Derived Asset Modules}
 
 \subsection{Risk Mitigation}
 It is impossible to guarantee that every module will always be bug free.
