@@ -5,6 +5,11 @@
 \usepackage{lipsum}
 \usepackage{url}
 
+%% use four levels for sections
+\expandafter\newcommand\csname r@tocindent4\endcsname{4in}
+\setcounter{secnumdepth}{4}
+
+%% header
 \title{Arcadia Finance [Draft]}
 \subtitle{November 2023}
 \date{November 2023}
@@ -71,8 +76,7 @@ While the Creditor refers to the entity to whom the liability is owed.
 
 \textsc{Margin:} The value of collateral assets that a Debtor must hold in a Margin Account to cover the credit risk of its Creditor(s).
 The margin requirements, are set by the Creditor.
-In general there are two types of margin requirements: Initial Margin (minimum value of collateral that must be held in the margin account to open a new position)
-and Maintenance Margin (minimum value of collateral that must be held in the margin account to keep an existing position open).
+It is the value of assets that is "locked" when a Debtor opens a position.
 
 \textsc{Margin Account:} Our definition of a Margin Account extends beyond the conventional usage within Brokerage Accounts. 
 The holder of a Margin Account not only has the ability to utilize and transact with the assets within the account (as is the case with a cash account or your standard crypto wallet),
@@ -84,7 +88,7 @@ but can also incur liabilities against those assets. The margin requirements (in
 Withing the financial system, Collateral serves a primary function in mitigating the counterparty risks borne by Creditors, in case Debtors would fail to fulfill their financial liabilities.
 
 \subsection{Origin}
-Evidence of collateralized loans, also known as secured loans, can be traced back to at least 400 BCE in Ancient Greece  \cite{millett2002lending}.
+Evidence of collateralized loans, also known as secured loans, can be traced back to at least 400 BCE in Ancient Greece \cite{millett2002lending}.
 In these early transactions, borrowers provided tangible assets as collateral to secure loans, laying the foundation for the concept of collateralization.
 
 \subsection{Current State}
@@ -383,6 +387,7 @@ Since all underlying assets are valued with 18 decimals precision, no additional
 \end{equation}
 
 \subsection{Portfolio Pricing}
+\label{subsec:portfolio-pricing}
 Section \ref{subsec:modular-pricing-logic} explains how the Registry can calculate the value of assets in usd.
 Building further on this logic, the Registry can price any combination of assets in any numeraire (the asset used as unit of account).
 
@@ -394,11 +399,17 @@ Given a portfolio $P$ consisting of assets with amount $A_{i}$, the value of the
 
 The result of equation \ref{eq:portfolio-value-mtm} is the spot or MtM (mark-to-market) value of the portfolio.
 Next to the MtM value of the portfolio, the Registry can also calculate risk adjusted portfolios value,
-where assets are discounted with a asset-numeraire specific risk factor $RF_{i}^{C}$, set by each Creditor.
+where assets are discounted with a asset-numeraire specific risk factor $RF_{i}^{c}$, set by each Creditor.
 The risk adjusted portfolio value $V_{risk}^{num}(P)$ is then given as:
 \begin{equation}
-    V_{risk}^{num}(P) = \frac{\sum_{i}{RF_{i}^{C} \cdot V^{usd}(A_{i})}}{R_{num\rightarrow usd}}\frac{S_{num}}{10^{18}}
+    \label{eq:portfolio-value-risk-adjusted}
+    V_{risk}^{num}(P) = \frac{\sum_{i}{RF_{i}^{c} \cdot V^{usd}(A_{i})}}{R_{num\rightarrow usd}}\frac{S_{num}}{10^{18}}
 \end{equation}
+
+There are two important risk adjusted portfolios values: The Collateral Value $V_{coll}^{num}$ of the Account and the Liquidation Value $V_{liq}^{num}$ of the account.
+Both are used to check the Margin Requirements of the account.
+The Collateral Value can be calculated by plugging the asset-numeraire specific collateral factors $CF_{i}^{c}$ of each asset into equation \ref{eq:portfolio-value-risk-adjusted}.
+And the Liquid Value respectively by using the liquidation factors $LF_{i}^{c}$ of each asset.
 
 \subsection{Creditor Specific Risk Parameters}
 \label{subsec:creditor-specific-cisk-parameters}
@@ -410,13 +421,13 @@ The risk parameters can be asset specific, protocol specific or a single value p
 \subsubsection{Collateral, Liquidation and Risk Factors}
 As is described in detail in Paragraph \ref{subsec:margin-accounts}, collateral factors and liquidation factors are used to discount asset values to account for market, liquidity and smart-contract risks.
 
-Each asset $i$ that can be priced by the Registry has a Creditor specific collateral factor $CF_{i}^{C}$ and liquidation $LF_{i}^{C}$ factor.
+Each asset $i$ that can be priced by the Registry has a Creditor specific collateral factor $CF_{i}^{c}$ and liquidation $LF_{i}^{c}$ factor.
 For Primary Assets, the factors are set directly by Creditor.
 
-For Derived Assets, the risk factors are a function of the risk factors of its underlying assets $u$, and optionally an additional protocol specific risk factor $RF_{p}^{C}$,
+For Derived Assets, the risk factors are a function of the risk factors of its underlying assets $u$, and optionally an additional protocol specific risk factor $RF_{p}^{c}$,
 to account for the additional complexity smart contract risk of derived assets:
 \begin{equation}
-    CF_{i}^{C} = f(\forall CF_{u}^{C}, RF_{p}^{C})
+    CF_{i}^{c} = f(\forall CF_{u}^{c}, RF_{p}^{c})
 \end{equation}
 
 The relation between the risk factor and the risk factors of the underlying assets will depend on the specific nature ot the derived asset.
@@ -426,10 +437,10 @@ For derived assets with a single underlying asset the risk factor becomes straig
 As an example, take a protocol ($p$) with yield bearing assets, which has an $ETH$ and a $USDC$ vault.
 The collateral factors of the corresponding $pETH$ and $pUSDC$ tokens are:
 \begin{equation}
-    CF_{pETH}^{C} = RF_{p}^{C} \cdot CF_{ETH}^{C}
+    CF_{pETH}^{c} = RF_{p}^{c} \cdot CF_{ETH}^{c}
 \end{equation}
 \begin{equation}
-    CF_{pUSDC}^{C} = RF_{p}^{C} \cdot CF_{USDC}^{C}
+    CF_{pUSDC}^{c} = RF_{p}^{c} \cdot CF_{USDC}^{c}
 \end{equation}
 
 \subsubsection{Maximum Exposure}
@@ -457,14 +468,147 @@ This gas cost is independent of the size of the open position.
 Not taking into account the size independent gas cost could lead to very small positions that are never profitable to liquidate.
 Or even worse, liquidations that are successfully started, but never profitable to end.
 
-To avoid both problems, accounts must have a Creditor specific minimum value of collateral, the minimum margin $MM^{C}$, before they can open a position.
+To avoid both problems, accounts must have a Creditor specific minimum value of collateral, the minimum margin $MM^{c}$, before they can open a position.
 The minimum margin can not be used to back liabilities and can be seen as an amount of collateral that is locked to at least cover gas costs of Liquidators.
 
 \section{Arcadia Accounts}
 \label{sec:arcadia-accounts}
+Arcadia Accounts are the main moat of the protocol.
+Accounts serve as a user-controlled smart wallet from which the user can perform a multitude of actions.
+
+Arcadia Accounts are owned by one specific user, the owner of the Account.
+Users can deploy one or more Accounts through the Arcadia Factory, ensuring the Account adheres to the code as developed by the Arcadia team.
+The owner of the Account holds many privileges, such as being able to deposit and withdraw assets,
+use the assets to interact with other DeFi protocols,
+change the creditor (see further) or transfer the Account to another owner.
+
+\subsection{Margin Accounts}
+\label{subsec:margin-accounts}
+Arcadia Accounts are an implementation of on-chain Margin Accounts.
+Margin Accounts enable non-trusting entities to manage counter party risks of financial contracts.
+An investor can use a margin Account for instance to increase their buying power, to short assets, or for financial contracts such as futures, swaps or options.
+
+Each Margin Account is a separate user-owned smart contract that does the accounting of both the assets and liabilities of its owners.
+Margin Accounts can be seen as an extension to standard smart wallets.
+With the assets held by the Margin Account you can do similar actions as you can do with a standard wallet
+but additionally you can take liabilities against the Account.
+
+The Margin Account will enforce its margin requirements continuously.
+This guarantees that the total value of all assets within the Account is always bigger as the liabilities against the Account (it is over-collateralized).
+If a certain transaction would bring the Account at risk of becoming under-collateralized, the transaction will revert.
+
+In the next paragraphs we will express the Margin requirements mathematically, introduce some margin related concepts.
+Note that we do not 100\% follow the conventions and terminology of the traditional financial world.
+\subsubsection{Open position}
+The open position, $op^c$, equals the size of the liability that a specific Debtor has with a specific Creditor.
+
+\subsubsection{Minimum Margin}
+The minimum margin, $M_{min}^c$, is the minimum amount of collateral value that must be held in an Account to be able an open position with a Creditor.
+The main purpose of the minimum margin is to avoid having accounts with small liabilities, that are unprofitable to liquidate.
+The cost to liquidate assets in general consists of two parts, a cost that increases linearly with the size of the liabilities that has to be repaid (swap fees, slippage, liquidation penalties...)
+and a cost that is Independent from the size of the liabilities (mainly the gas costs executing the liquidation transactions on-chain).
+The minimum margin should be set by the Creditor such that it can cover in all costs these fixed costs related to the liquidation of assets.
+
+\subsubsection{Used Margin}
+The used margin, $um$, is the total amount of collateral value locked by the Account to ensure that the Account remains over-collateralized.
+Since collateral in the Account must be held to cover both the open position and the minimum margin, the used margin can be found as:
+\begin{equation}
+    um = M_{min}^c + op^c
+\end{equation}
+
+\subsubsection{Available Margin}
+\label{subsubsec:available-margin}
+We define the available margin, $am$, as the total value that the Account can use to secure open positions.
+This total value equals the risk-adjusted portfolio value, expressed by Formula \ref{eq:portfolio-value-risk-adjusted},
+where each asset is discounted with an asset-numeraire specific risk factor (the Collateral Factor).
+Hence the available margin equals the Collateral Value as defined in Paragraph \ref{subsec:portfolio-pricing}
+(we will the terms 'available margin' and 'Collateral Value' interchangeable).
+\begin{equation}
+    \label{eq:available-margin}
+    am = V_{coll}^{num} = \frac{\sum_{i}{CF_{i}^{c} \cdot V^{usd}(A_{i})}}{R_{num\rightarrow usd}}\frac{S_{num}}{10^{18}}
+\end{equation}
+
+\subsubsection{Free Margin}
+The free margin, $fm$, is the remaining amount of collateral value that is left in the account.
+It is the amount of collateral value that can be withdrawn from the account, or it can be used to increase the open position.
+
+The free margin can be found by subtracting the used margin from the available margin:
+\begin{equation}
+    \label{eq:free-margin}
+    fm = am - um
+\end{equation}
+
+\subsubsection{Initial Margin}
+\label{subsubsec:initial-margin}
+The initial margin of an asset, $IM_{i}^{c}$, is defined in the traditional financial world as the percentage of the value of an asset bought on margin (bought with debt),
+that must be covered by additional collateral held in the Account at the time of the sale.
+As an example, take an asset with an initial margin of 5\%, if someone want to buy 10,000 worth of the asset on margin, they need to hold at least 500 worth of collateral in their margin account.
+
+The astute reader will see the similarities with the available margin and Collateral Factors as defined in Paragraph \ref{subsubsec:available-margin}.
+There is indeed a mathematical relationship between the two.
+
+Take an asset $i$, for which an amount of $x$ is bought on margin from Creditor $C$.
+If a value of $x$ is borrowed, then at least a value of $IM_{i}^{c} \cdot x$ must be deposited as collateral into the Account.
+The account now has an open position of $x$ and holds in total $x + IM_{i}^{c} \cdot x$ of the asset $i$ ($IM_{i}^{c} \cdot x$ deposited as collateral and $x$ borrowed from Creditor $C$):
+\begin{equation}
+    \label{eq:initial-margin}
+    \begin{split}
+        &op^c = x\\
+        &V^{num}_i = x + IM_{i}^{c} \cdot x
+    \end{split}
+\end{equation}
+
+When the minimal amount of collateral is deposited, the free margin will be zero, and after plugging Equation \ref{eq:available-margin} into \ref{eq:free-margin}, the used margin equals the collateral value:
+\begin{equation}
+    CF_{i}^{c} \cdot V^{num}_i = um
+\end{equation}
+And if we ignore the minimum margin:
+\begin{equation}
+    CF_{i}^{c} \cdot V^{num}_i = op^c
+\end{equation}
+And finally after plugging in Equations \ref{eq:initial-margin} we find the relation between the initial margin and the Collateral Factor:
+\begin{equation}
+    CF_{i}^{c} = \frac{1}{1 + IM_{i}^{c}}
+\end{equation}
+
+\subsubsection{Maintenance Margin}
+The maintenance margin of an asset, $MM_{i}^{c}$, is also a term often used in traditional finance and similar to the initial margin.
+It is the percentage of the value of an asset bought on margin, that must be covered by additional collateral held in the Account at all time after the transaction.
+
+If the value of the additional collateral would ever fall below the maintenance margin, a margin call is triggered and a liquidation of the assets of the Account start.
+
+A similar derivation as in Paragraph \ref{subsubsec:initial-margin} can be made for the relation between the maintenance margin of an asset and its Liquidation Factor:
+\begin{equation}
+    LF_{i}^{c} = \frac{1}{1 + MM_{i}^{c}}
+\end{equation}
+
+\subsubsection{Margin Account States}
+There are three different account states, depending on the value of the Used Margin of the Account and the total value of the assets of the account.
+
+\begin{enumerate}
+    \item \textsc{Healthy state:} The Account is in a healthy state if the used margin is smaller than the Collateral Value:
+        \begin{equation}
+            um < V_{coll}
+        \end{equation}
+    \item \textsc{Unhealthy state:} The Account is in an unhealthy state if the used margin is smaller than the Collateral Value but bigger than the Liquidation Value:
+        \begin{equation}
+            V_{coll} < um < V_{liq}
+        \end{equation}
+        
+        Accounts in the unhealthy state can only be de-risked by or reducing the open position, or adding more collateral.
+        It is not possible to withdraw any assets or increase the open position.
+    \item \textsc{Liquidatable state:} The Account is in a liquidatable state if the used margin is smaller than the Liquidation Value:
+        \begin{equation}
+            V_{liq} < um
+        \end{equation}
+        
+        When an account is in the liquidatable state, anyone can trigger a margin call.
+        The account is now frozen and a liquidation process of the assets within the account start.
+        The liquidation ends when or the account is brought back in a healthy state, or all assets are liquidated.
+\end{enumerate}
 
 \subsection{Multi-collateral}
-By allowing multiple types of assets to be deposited within a single Account, users, institutions and protocols can build diversified portfolio's.
+By allowing multiple types of assets to be deposited within a single Account, users, institutions and protocols can build diversified portfolio's and complex strategies.
 The list of asset(types) that can be deposited in Arcadia Accounts is continuously being expanded. Our goal is for users to unlock capital of any quality, price-able DeFi primitive.
 
 Each Creditor can determine themselves which asset(types) are to be allowed as collateral in Accounts of their Debtors.
@@ -475,9 +619,6 @@ This means that Accounts are fully composable with existing infrastructure and a
 Other benefits are that Accounts can be tracked and monitored trough existing DeFi dashboards and it opens up use-cases where Accounts can be sold in their entirety (both assets and liabilities) on existing NFT marketplaces.
 
 \subsection{Token Standard Agnostic}
-
-\subsection{Margin Accounts}
-\label{subsec:margin-accounts}
 
 \subsection{Account Abstraction ready}
 
