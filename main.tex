@@ -193,7 +193,7 @@ Having the ability to use a portfolio of assets as collateral improves the capit
 \begin{itemize}
     \item The volatility of a portfolio of assets is always equal to, or lower than the weighted volatility of the individual assets.
     Or put different, assets losing in value can be compensated with assets increasing in value.
-    \item Having less positions, with lower volatility, reduces the nu
+    \item Having less positions, with lower volatility, reduces the number of rebalancing actions and liquidations.
     \item Depending on the correlation between collateralized assets, the Creditor might use less strict margin requirement.
     \item Debtors can use negatively correlated assets to hedge positions and limit liquidation risks.
 \end{itemize}
@@ -208,7 +208,7 @@ Again there are again multiple underlying root causes why collateral in DeFi is 
     \item As mentioned in Section \ref{subsubsec:hacks-and-exploits}, there is no shared collateral management layer, each protocol with collateral has their own non-standardized implementation.
     \item Protocols are build around specific assets types (eg. lending protocols for simple ERC20 or for AMM LPs, or for NFTs). 
     Different asset types cannot be used within the same protocol to back a single position and emergence of new primitives/token standards requires migrations/new protocols.
-    \item Blockchain is still a young technology, core non-financial infrastructure required for on-chain portfolio management (think Account Abstraction, intents or cross-chain messaging) is only recently developed. 
+    \item Blockchain is still a young technology, core non-financial infrastructure required for on-chain portfolio management (think Account Abstraction, intents or cross-chain messaging) is only recently developed or still in development. 
 \end{itemize}
 
 Fragmentation of assets not only results in capital inefficiencies, it also contributes to a challenging user experience, more on that in the next Section (\ref{subsubsec:end-user-complexity}).
@@ -224,6 +224,7 @@ Important note, abstracting away technical complexities should never come at a c
 
 As mentioned in the previous Section \ref{subsubsec:fragmented-collateral}, the bad user experience is partly due to the fragmentation of assets and positions.
 Rebalancing portfolio's often require multiple transactions per asset and per position.
+
 Today the user has to execute multiple sequential transactions per asset, instead a single transaction that rebalances the complete portfolio.
 Let's take as example a user that wants to earn yield from his collateralized assets and get exposure to Liquid Staking Tokens (LSTs).
 Since LST protocols introduce an additional layer of risk, he wants to diversify risks over 5 different LST service providers.
@@ -235,6 +236,7 @@ Not only is this time consuming, it also introduces additional operational risks
     \item Increased risk of manual mistakes (fat fingers, bad slippage settings).
     \item Increased risk of falling victim phishing attacks on one of the platforms.. 
 \end{itemize}
+With Account abstraction all these different action can be bundled in a single atomic on-chain transaction.
 
 A second abstraction is to let users define what they want, and provide them with the information (the calldata) how to do it.
 Since most collateral management actions require interactions with multiple assets/protocols,
@@ -244,8 +246,6 @@ At the time of writing this paper, the required infrastructure to enable both ab
 Most notable are the proposals for Account Abstraction (e.g. EIP-3074 and EIP-4337) and for Intent based architectures (e.g. EIP-7521)
 
 Both abstractions are already successfully applied (albeit in a somewhat non-standardized form) within DeFi by Decentralised Exchanges, NFT-marketplaces and their aggregators.
-
-Our philosophy is that users should express what they want to do, not how they do it.
 
 \subsection{New Architectures}
 During the last months many solutions were proposed by different protocols and stakeholders on how to build a more robust decentralised financial system.
@@ -474,51 +474,61 @@ The minimum margin can not be used to back liabilities and can be seen as an amo
 \section{Arcadia Accounts}
 \label{sec:arcadia-accounts}
 Arcadia Accounts are the main moat of the protocol.
-Accounts serve as a user-controlled smart wallet from which the user can perform a multitude of actions.
+Accounts serve as an advanced user-controlled smart wallet from which the owner can perform a multitude of actions: deposit and withdraw assets,
+use the assets to interact with other DeFi protocols, open a margin account with a Creditor, open positions with the Creditor,
+change from Creditor or transfer the Account to another owner.
 
-Arcadia Accounts are owned by one specific user, the owner of the Account.
+Each Arcadia Account is a separate smart contract, owned by one single user.
 Users can deploy one or more Accounts through the Arcadia Factory, ensuring the Account adheres to the code as developed by the Arcadia team.
-The owner of the Account holds many privileges, such as being able to deposit and withdraw assets,
-use the assets to interact with other DeFi protocols,
-change the creditor (see further) or transfer the Account to another owner.
 
 \subsection{Margin Accounts}
 \label{subsec:margin-accounts}
-Arcadia Accounts are an implementation of on-chain Margin Accounts.
-Margin Accounts enable non-trusting entities to manage counter party risks of financial contracts.
-An investor can use a margin Account for instance to increase their buying power, to short assets, or for financial contracts such as futures, swaps or options.
+Arcadia Accounts are more than the standard smart contract wallets, they can be used as on-chain Margin Accounts.
+They are an extension to a smart contract wallet in a similar way how a credit card is an extension to a debit card:
+The owner of the account/card not only has control over the assets held by the account/card,
+they can also use the account/card to incur liabilities.
 
-Each Margin Account is a separate user-owned smart contract that does the accounting of both the assets and liabilities of its owners.
-Margin Accounts can be seen as an extension to standard smart wallets.
-With the assets held by the Margin Account you can do similar actions as you can do with a standard wallet
-but additionally you can take liabilities against the Account.
+Unlike credit cards however, margin accounts do not rely on trust and reputation that liabilities will be paid back.
 
-The Margin Account will enforce its margin requirements continuously.
-This guarantees that the total value of all assets within the Account is always bigger as the liabilities against the Account (it is over-collateralized).
-If a certain transaction would bring the Account at risk of becoming under-collateralized, the transaction will revert.
+The Margin Account mitigates the counterparty risk, borne by the Creditor,
+by guaranteeing that the total value of all assets within the Account is always bigger than the liabilities against the Account (it is over-collateralized):
+\begin{itemize}
+    \item It holds the collateral assets and open positions of the Debtor (the Account owner).
+    \item It does the accounting of both the assets and liabilities.
+    \item It enforces the margin requirements continuously:
+    \begin{itemize}
+        \item Any Account Action that would bring it at risk of becoming under-collateralized is automatically reverted.
+        \item If over time, due to changing values of assets/liabilities, it is at risk of becoming under-collateralized, a margin call is triggered.
+    \end{itemize}
+\end{itemize}
 
-In the next paragraphs we will express the Margin requirements mathematically, introduce some margin related concepts.
+With Arcadia Accounts, the asset management, Accounting logic, and the enforcement of the margin requirements are 100\% implemented on-chain.
+Arcadia Accounts are permissionless and fully composable with tokens and external DeFi protocols.
+They can be used by on-chain investors to increase their buying power, to short assets, or to hold financial contracts such as futures, swaps, options or other derivatives.
+
+In the next paragraphs we will introduce some margin related concepts and express the Margin requirements mathematically.
 Note that we do not 100\% follow the conventions and terminology of the traditional financial world.
-\subsubsection{Open position}
-The open position, $op^c$, equals the size of the liability that a specific Debtor has with a specific Creditor.
 
-\subsubsection{Minimum Margin}
-The minimum margin, $M_{min}^c$, is the minimum amount of collateral value that must be held in an Account to be able an open position with a Creditor.
-The main purpose of the minimum margin is to avoid having accounts with small liabilities, that are unprofitable to liquidate.
-The cost to liquidate assets in general consists of two parts, a cost that increases linearly with the size of the liabilities that has to be repaid (swap fees, slippage, liquidation penalties...)
-and a cost that is Independent from the size of the liabilities (mainly the gas costs executing the liquidation transactions on-chain).
-The minimum margin should be set by the Creditor such that it can cover in all costs these fixed costs related to the liquidation of assets.
+\subsubsection{Portfolio Margin}
+Arcadia Accounts use by default portfolio margin calculations for their risk and margin calculations.
 
-\subsubsection{Used Margin}
-The used margin, $um$, is the total amount of collateral value locked by the Account to ensure that the Account remains over-collateralized.
-Since collateral in the Account must be held to cover both the open position and the minimum margin, the used margin can be found as:
-\begin{equation}
-    um = M_{min}^c + op^c
-\end{equation}
+Portfolio margin has a number of advantages over isolated margin (where collateral is not shared between positions at all).
+It is more capital efficient and prevents unnecessary liquidations or rebalancing of positions, leading to lower fees and potential losses.
+
+Users that still want to have isolated positions can still do so by deploying multiple account and depositing a single asset as collateral in each account.
+
+Portfolio margin is similar to cross-margin in that all assets bought on margin, share the same collateral.
+But unlike with cross-margin, there is no distinction between realized and unrealized profits.
+Wins of one position offset losses of other positions, independent if they are realised or not,
+making Portfolio margin even more capital efficient.
+
+This is because Accounts do not make a distinction between the assets initially deposited as collateral and the assets bought on margin.
+All assets held by the Account (deposited and bought) are taken in consideration for the margin calculations.
 
 \subsubsection{Available Margin}
 \label{subsubsec:available-margin}
-We define the available margin, $am$, as the total value that the Account can use to secure open positions.
+We define the available margin, $am$, as the total value that the Account can use as margin to secure liabilities.
+
 This total value equals the risk-adjusted portfolio value, expressed by Formula \ref{eq:portfolio-value-risk-adjusted},
 where each asset is discounted with an asset-numeraire specific risk factor (the Collateral Factor).
 Hence the available margin equals the Collateral Value as defined in Paragraph \ref{subsec:portfolio-pricing}
@@ -528,9 +538,28 @@ Hence the available margin equals the Collateral Value as defined in Paragraph \
     am = V_{coll}^{num} = \frac{\sum_{i}{CF_{i}^{c} \cdot V^{usd}(A_{i})}}{R_{num\rightarrow usd}}\frac{S_{num}}{10^{18}}
 \end{equation}
 
+\subsubsection{Open position}
+The open position, $op^c$, equals the size of the liability that a specific Debtor has with a specific Creditor.
+
+\subsubsection{Minimum Margin}
+The minimum margin, $M_{min}^c$, is the minimum amount of collateral value that must be held in an Account to be able an open position with a Creditor.
+
+The main purpose of the minimum margin is to avoid having accounts with small liabilities, that are unprofitable to liquidate.
+The cost to liquidate assets in general consists of two parts, a cost that increases linearly with the size of the liabilities that has to be repaid (swap fees, slippage, liquidation penalties...)
+and a cost that is Independent from the size of the liabilities (mainly the gas costs executing the liquidation transactions on-chain).
+
+The minimum margin should be set by the Creditor such that it can cover in all costs these fixed costs related to the liquidation of assets.
+
+\subsubsection{Used Margin}
+The used margin, $um$, is the total amount of collateral value locked by the Account to ensure that the Account remains over-collateralized.
+
+Since collateral in the Account must be held to cover both the open position and the minimum margin, the used margin can be found as:
+\begin{equation}
+    um = M_{min}^c + op^c
+\end{equation}
+
 \subsubsection{Free Margin}
-The free margin, $fm$, is the remaining amount of collateral value that is left in the account.
-It is the amount of collateral value that can be withdrawn from the account, or it can be used to increase the open position.
+The free margin, $fm$, is the remaining amount of collateral value that can be used to increase the open position or that can be withdrawn from the accounts assets.
 
 The free margin can be found by subtracting the used margin from the available margin:
 \begin{equation}
@@ -566,13 +595,13 @@ And if we ignore the minimum margin:
 \begin{equation}
     CF_{i}^{c} \cdot V^{num}_i = op^c
 \end{equation}
-And finally after plugging in Equations \ref{eq:initial-margin} we find the relation between the initial margin and the Collateral Factor:
+And finally after plugging in Equations \ref{eq:initial-margin}, we find the relation between the initial margin and the Collateral Factor:
 \begin{equation}
     CF_{i}^{c} = \frac{1}{1 + IM_{i}^{c}}
 \end{equation}
 
 \subsubsection{Maintenance Margin}
-The maintenance margin of an asset, $MM_{i}^{c}$, is also a term often used in traditional finance and similar to the initial margin.
+The maintenance margin of an asset, $MM_{i}^{c}$, is similar to the initial margin.
 It is the percentage of the value of an asset bought on margin, that must be covered by additional collateral held in the Account at all time after the transaction.
 
 If the value of the additional collateral would ever fall below the maintenance margin, a margin call is triggered and a liquidation of the assets of the Account start.
@@ -583,7 +612,7 @@ A similar derivation as in Paragraph \ref{subsubsec:initial-margin} can be made 
 \end{equation}
 
 \subsubsection{Margin Account States}
-There are three different account states, depending on the value of the Used Margin of the Account and the total value of the assets of the account.
+There are three different account states, depending on the Used Margin of the Account and the risk adjusted total values of of the Account.
 
 \begin{enumerate}
     \item \textsc{Healthy state:} The Account is in a healthy state if the used margin is smaller than the Collateral Value:
@@ -595,7 +624,7 @@ There are three different account states, depending on the value of the Used Mar
             V_{coll} < um < V_{liq}
         \end{equation}
         
-        Accounts in the unhealthy state can only be de-risked by or reducing the open position, or adding more collateral.
+        Accounts in the unhealthy state can only be de-risked by or reducing the open position, or adding more collateral assets.
         It is not possible to withdraw any assets or increase the open position.
     \item \textsc{Liquidatable state:} The Account is in a liquidatable state if the used margin is smaller than the Liquidation Value:
         \begin{equation}
@@ -603,24 +632,48 @@ There are three different account states, depending on the value of the Used Mar
         \end{equation}
         
         When an account is in the liquidatable state, anyone can trigger a margin call.
-        The account is now frozen and a liquidation process of the assets within the account start.
+        The account is now frozen and a liquidation process of the account start.
         The liquidation ends when or the account is brought back in a healthy state, or all assets are liquidated.
 \end{enumerate}
 
-\subsection{Multi-collateral}
-By allowing multiple types of assets to be deposited within a single Account, users, institutions and protocols can build diversified portfolio's and complex strategies.
-The list of asset(types) that can be deposited in Arcadia Accounts is continuously being expanded. Our goal is for users to unlock capital of any quality, price-able DeFi primitive.
+\subsection{Upgradeability}
+Each deployed Account is linked to a certain Account logic contract.
+Account logic will include the features Account owners can benefit from, for example, flash withdrawals, active collateral management, authorization delegation, … 
+The Account logic is upgradable, but the Account owners and Creditors have full control if and when they want to upgrade to new logic.
 
-Each Creditor can determine themselves which asset(types) are to be allowed as collateral in Accounts of their Debtors.
+Should a user wish to use features newly introduced in an upcoming Account version, it will be up to them to upgrade the linked Account logic.
+Users do not have to migrate assets or close DeFi positions when doing so.
 
-\subsection{Composable}
-Arcadia Accounts themselves are according to the ERC-721 standard and can thus be represented as a single asset.
-This means that Accounts are fully composable with existing infrastructure and are straightforward to integrate.
-Other benefits are that Accounts can be tracked and monitored trough existing DeFi dashboards and it opens up use-cases where Accounts can be sold in their entirety (both assets and liabilities) on existing NFT marketplaces.
+Creditors can determine which Account logic versions are allowed to be used by their Debtors.
+As such, highly-customized Account logic can be implemented for protocol-specific versions should this be required. 
+The Arcadia protocol can in no way change the version of a user-owned deployed Account, or change any functionality in existing Account logic.
+
+\subsection{Multi-asset}
+\label{subsec:multi-asset}
+The owner of the Account can deposit and withdraw a multitude of collateral assets.
+The list of assets that can be deposited in Arcadia Accounts is continuously being expanded, thanks to the modular architecture of the Arcadia Registry (see Paragraph \ref{subsec:modular-pricing-logic}).
+
+By allowing multiple assets to be deposited within a single Account, users, institutions and protocols can build diversified portfolio's and complex strategies.
+
+That does however not mean that Creditors can be exposed to an ever increasing list of assets.
+Creditors can limit which assets are allowed as collateral in Accounts of their Debtors,
+and set appropriate risk parameters for the assets they allow (see Paragraph \ref{subsec:creditor-specific-cisk-parameters}).
+
+New assets that can be deposited into Accounts are by default not accepted for a Creditor.
+Only if the Creditor explicitly allows the asset, can their Debtors use it as collateral.
 
 \subsection{Token Standard Agnostic}
+Accounts are token-standard agnostic, meaning not only typical ERC20 tokens can be deposited,
+Also assets complying with other standards, such as ERC721 (”NFTs”, such as Uniswap V3 LP positions) and ERC1155 assets can be held in an Arcadia Account.
 
-\subsection{Account Abstraction ready}
+That does however not mean that because ERC721 is supported, all implementation of ERC721 are supported.
+As mentioned in Paragraph \ref{subsec:multi-asset}, each individual asset (individual contract address and, if applicable, token Id)
+must be allowed by the Registry and secondly be accepted by the Creditor before a Debtor can use it as collateral.
+
+\subsection{Composable}
+Arcadia Accounts themselves are according to the ERC-721 standard and can thus be represented as a single asset on-chain.
+This means that Accounts are fully composable with existing infrastructure and are straightforward to integrate.
+Other benefits are that Accounts can be tracked and monitored trough existing DeFi dashboards and it opens up use-cases where Accounts can be sold in their entirety (both assets and liabilities) on existing NFT marketplaces.
 
 \subsection{Flash Actions}
 Flash Actions (or optimistic Actions or flash accounting) expands on the concept of flashloans, and are only possible thanks to a unique property of smart contracts: atomicity\cite{xie2022towards}.
@@ -659,19 +712,15 @@ And keep in mind that all of these actions can be done, even if the assets are u
 \end{itemize}
 
 \subsection{Intent ready}
+Our philosophy is that users should express what they want to do, not how they do it.
+
+\subsection{Account Abstraction ready}
 
 \subsection{Automated Asset Management}
-
-\subsection{Upgradeability}
-Each deployed Account is linked to a certain Account logic contract.
-Account logic will include the features Account owners can benefit from, for example, flash withdrawals, active collateral management, authorization delegation, … 
-The Account logic is upgradable, but the user has full control if and when they want to upgrade to new logic.
-Should a user wish to use features newly introduced in an upcoming Account version, it will be up to them to upgrade the linked Account logic.
-Users will not have to migrate assets or close DeFi positions when doing so. 
-
-Creditors can determine which Account logic versions are allowed to be used by their Debtors.
-As such, highly-customized Account logic can be implemented for protocol-specific versions should this be required. 
-The Arcadia protocol can in no way change the version of a user-owned deployed Account, or change any functionality in existing Account logic.
+An Arcadia Account is a user-owned smart contract.
+Arcadia Vaults are deployed through a proxy factory by the user.
+Doing so, the user becomes the sole owner of the deployed vault.
+Arcadia doesn’t take ownership of your assets and in no way can Arcadia withdraw, deposit or take any other action on the users’ behave.
 
 \section{Arcadia Creditor}
 \label{sec:arcadia-creditor}
