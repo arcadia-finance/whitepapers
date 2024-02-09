@@ -488,7 +488,7 @@ They are an extension to a smart contract wallet in a similar way how a credit c
 The owner of the account/card not only has control over the assets held by the account/card,
 they can also use the account/card to incur liabilities.
 
-Unlike credit cards however, margin accounts do not rely on trust and reputation that liabilities will be paid back.
+Unlike credit cards however, margin accounts do not rely on trust and reputation to ensure liabilities are paid back.
 
 The Margin Account mitigates the counterparty risk, borne by the Creditor,
 by guaranteeing that the total value of all assets within the Account is always bigger than the liabilities against the Account (it is over-collateralized):
@@ -506,7 +506,7 @@ With Arcadia Accounts, the asset management, Accounting logic, and the enforceme
 Arcadia Accounts are permissionless and fully composable with tokens and external DeFi protocols.
 They can be used by on-chain investors to increase their buying power, to short assets, or to hold financial contracts such as futures, swaps, options or other derivatives.
 
-In the next paragraphs we will introduce some margin related concepts and express the Margin requirements mathematically.
+In the next paragraphs (Note: should we move this to an appendix??) we will introduce some margin related concepts and express the Margin requirements mathematically.
 Note that we do not 100\% follow the conventions and terminology of the traditional financial world.
 
 \subsubsection{Portfolio Margin}
@@ -531,8 +531,9 @@ We define the available margin, $am$, as the total value that the Account can us
 
 This total value equals the risk-adjusted portfolio value, expressed by Formula \ref{eq:portfolio-value-risk-adjusted},
 where each asset is discounted with an asset-numeraire specific risk factor (the Collateral Factor).
+
 Hence the available margin equals the Collateral Value as defined in Paragraph \ref{subsec:portfolio-pricing}
-(we will the terms 'available margin' and 'Collateral Value' interchangeable).
+(we will use the terms 'available margin' and 'Collateral Value' interchangeable).
 \begin{equation}
     \label{eq:available-margin}
     am = V_{coll}^{num} = \frac{\sum_{i}{CF_{i}^{c} \cdot V^{usd}(A_{i})}}{R_{num\rightarrow usd}}\frac{S_{num}}{10^{18}}
@@ -569,9 +570,11 @@ The free margin can be found by subtracting the used margin from the available m
 
 \subsubsection{Initial Margin}
 \label{subsubsec:initial-margin}
-The initial margin of an asset, $IM_{i}^{c}$, is defined in the traditional financial world as the percentage of the value of an asset bought on margin (bought with debt),
+The initial margin of an asset, $IM_{i}^{c}$, is defined in the traditional financial world as the percentage of the value of an asset bought on margin (bought with debt)
 that must be covered by additional collateral held in the Account at the time of the sale.
-As an example, take an asset with an initial margin of 5\%, if someone want to buy 10,000 worth of the asset on margin, they need to hold at least 500 worth of collateral in their margin account.
+
+As an example, take an asset with an initial margin of 5\%, if someone want to buy 10,000 worth of the asset on margin,
+they need to hold at least and additional 500 worth of collateral in their margin account.
 
 The astute reader will see the similarities with the available margin and Collateral Factors as defined in Paragraph \ref{subsubsec:available-margin}.
 There is indeed a mathematical relationship between the two.
@@ -591,7 +594,7 @@ When the minimal amount of collateral is deposited, the free margin will be zero
 \begin{equation}
     CF_{i}^{c} \cdot V^{num}_i = um
 \end{equation}
-And if we ignore the minimum margin:
+And if we ignore the minimum margin (this will be small compared to the open position) this simplifies to:
 \begin{equation}
     CF_{i}^{c} \cdot V^{num}_i = op^c
 \end{equation}
@@ -611,7 +614,7 @@ A similar derivation as in Paragraph \ref{subsubsec:initial-margin} can be made 
     LF_{i}^{c} = \frac{1}{1 + MM_{i}^{c}}
 \end{equation}
 
-\subsubsection{Margin Account States}
+\subsubsection{Margin Account Health States}
 There are three different account states, depending on the Used Margin of the Account and the risk adjusted total values of of the Account.
 
 \begin{enumerate}
@@ -619,6 +622,8 @@ There are three different account states, depending on the Used Margin of the Ac
         \begin{equation}
             um < V_{coll}
         \end{equation}
+
+        No account actions are restricted for Accounts in a healthy state, as long as the Account is still healthy at the end the action.
     \item \textsc{Unhealthy state:} The Account is in an unhealthy state if the used margin is smaller than the Collateral Value but bigger than the Liquidation Value:
         \begin{equation}
             V_{coll} < um < V_{liq}
@@ -632,21 +637,27 @@ There are three different account states, depending on the Used Margin of the Ac
         \end{equation}
         
         When an account is in the liquidatable state, anyone can trigger a margin call.
-        The account is now frozen and a liquidation process of the account start.
+        The account is now frozen and a liquidation process of the account starts.
         The liquidation ends when or the account is brought back in a healthy state, or all assets are liquidated.
 \end{enumerate}
 
 \subsection{Upgradeability}
-Each deployed Account is linked to a certain Account logic contract.
-Account logic will include the features Account owners can benefit from, for example, flash withdrawals, active collateral management, authorization delegation, … 
-The Account logic is upgradable, but the Account owners and Creditors have full control if and when they want to upgrade to new logic.
+\label{subsec:upgradeability}
+Arcadia Accounts are based on the ERC1967 standard for Proxy accounts.
+Each account contract points to a certain Account logic contract.
+It is the logic contract that implements the features to: deposit/withdraw assets, do flash actions, manage assets, authorise delegations...
 
-Should a user wish to use features newly introduced in an upcoming Account version, it will be up to them to upgrade the linked Account logic.
-Users do not have to migrate assets or close DeFi positions when doing so.
+Different implementations of the Account logic can (co)exist and each implementation is uniquely identified with a specific version in the Account factory.
+The Arcadia team can periodically push a new version to the Arcadia Factory, which might add new features, extend logic, or implement other improvements.
 
 Creditors can determine which Account logic versions are allowed to be used by their Debtors.
-As such, highly-customized Account logic can be implemented for protocol-specific versions should this be required. 
-The Arcadia protocol can in no way change the version of a user-owned deployed Account, or change any functionality in existing Account logic.
+As such, they can block version with certain features or highly-customized Account logic can be implemented for Creditor-specific versions should this be required.
+
+The Account logic is upgradable, enabling existing accounts to make use of newly introduced features in a new Account version if they whichs.
+Upgrading Account logic is always on an opt-in basis, it can never be enforced by the Arcadia protocol.
+The Accounts can only be upgraded to a different version if both the Account owner and the Creditor (if a margin account is opened) accept the specific version.
+
+When users upgrade their accounts, they don't have to migrate any assets or close liabilities and the accounts keeps the same contract address.
 
 \subsection{Multi-asset}
 \label{subsec:multi-asset}
@@ -655,7 +666,7 @@ The list of assets that can be deposited in Arcadia Accounts is continuously bei
 
 By allowing multiple assets to be deposited within a single Account, users, institutions and protocols can build diversified portfolio's and complex strategies.
 
-That does however not mean that Creditors can be exposed to an ever increasing list of assets.
+That does however not mean that Creditors have to be exposed to an ever increasing list of assets.
 Creditors can limit which assets are allowed as collateral in Accounts of their Debtors,
 and set appropriate risk parameters for the assets they allow (see Paragraph \ref{subsec:creditor-specific-cisk-parameters}).
 
@@ -670,14 +681,19 @@ That does however not mean that because ERC721 is supported, all implementation 
 As mentioned in Paragraph \ref{subsec:multi-asset}, each individual asset (individual contract address and, if applicable, token Id)
 must be allowed by the Registry and secondly be accepted by the Creditor before a Debtor can use it as collateral.
 
+Because the Account logic is upgradable, see Paragraph \ref{subsec:upgradeability}, even future token standards can be supported by Arcadia Account,
+if both account owner and creditor agree.
+
 \subsection{Composable}
 Arcadia Accounts themselves are according to the ERC-721 standard and can thus be represented as a single asset on-chain.
-This means that Accounts are fully composable with existing infrastructure and are straightforward to integrate.
-Other benefits are that Accounts can be tracked and monitored trough existing DeFi dashboards and it opens up use-cases where Accounts can be sold in their entirety (both assets and liabilities) on existing NFT marketplaces.
+This means that Accounts are fully composable with existing infrastructure and can be displayed in existing portfolio trackers as such (eg. Zapper, OpenSea, DeBank, …).
+
+An Arcadia Account can be transferred (or sold!) as a whole, including all assets and liabilities, just like you're used to transferring NFTs.
 
 \subsection{Flash Actions}
 Flash Actions (or optimistic Actions or flash accounting) expands on the concept of flashloans, and are only possible thanks to a unique property of smart contracts: atomicity\cite{xie2022towards}.
 Just as with flashloans, each step of the Flash Action must be successful or the transaction as a whole fails.
+
 The final health check of the Account (assets can cover all liabilities) is done at the very end of the transaction.
 This allows the Account Owner to temporary bring the Account in an undercollateralized (or even non collateralized state) without the risk on bad debt for any Creditor.
 Since if the Account is not brought back into a healthy state during the transaction, the final health check fails and thanks to atomicity the whole transaction fails.
@@ -689,7 +705,7 @@ In a fully permissionless way they can chain the following together (= do a flas
     \item The Creditor can execute arbitrary logic (e.g. give a flashloan).
     \item The Account owner can optimistically withdraw assets from the Account.
     \item The Account owner can transfer assets from his own wallet to the Account or external logic.
-    \item The Account owner can execute external logic, where he uses the assets (loaned, withdrawn or transferred) to interact with multiple DeFi protocols to swap, stake, claim...
+    \item The Account owner can execute arbitrary external logic, where he uses the assets (loaned, withdrawn or transferred) to interact with multiple DeFi protocols to swap, stake, claim...
     \item The Account owner can deposit recipient tokens back into the Account.
 \end{itemize}
 The only requirement is that the Account is in a healthy state at the very end of the flash action.
@@ -711,16 +727,46 @@ And keep in mind that all of these actions can be done, even if the assets are u
     \item ...
 \end{itemize}
 
-\subsection{Intent ready}
-Our philosophy is that users should express what they want to do, not how they do it.
-
 \subsection{Account Abstraction ready}
+\label{subsec:account-abstraction-ready}
+As mentioned in Paragraph \ref{subsubsec:end-user-complexity}, account abstraction is an important step forward in reducing end-user complexities and decreasing operational risks.
+
+At the time of writing this paper, there is no social consensus yet about which standard to use for account abstraction within the Ethereum ecosystem.
+Hence Arcadia Accounts will initially not be "real abstract accounts" and still require an EOA (Externally Owned Account) owning and controlling the actions of the Arcadia Account.
+Instead the Arcadia Accounts are "Account Abstraction ready".
+
+Still some key features of account abstraction are implemented in a non-standardized form.
+Most notable the ability to bundle multiple actions, and the ability to set an entry point that can do operations on behalf of the account owner.
+
+The Arcadia Accounts are implemented in such a way that if at some point account abstraction is implemented, they can be easily modify to adhere the the agreed upon standard.
+Even users with existing accounts can (if they want) upgrade their Accounts to this new version with full Account Abstraction, as explained in Paragraph \ref{subsec:upgradeability}.
+
+\subsection{Intent ready}
+We truly believe in the benefits intent based architectures bring for end-users,
+especially for collateral and asset management.
+
+But similarly to what we said in Paragraph \ref{subsec:account-abstraction-ready} about Account Abstraction,
+there is, at the time of writing this paper, no generalized infrastructure or standardization for intents within the Ethereum ecosystem yet.
+
+The Arcadia Accounts are however designed to be "intent ready".
+They will initially work with a non-standard single solver for intent based actions, with certain off-chain dependencies.
+
+And secondly, the Arcadia Account require little modifications to support "full intents" as soon as the required infra/standard is available.
+Tis would again require an upgrade of the Accounts logic as described in Paragraph \ref{subsec:upgradeability}.
 
 \subsection{Automated Asset Management}
-An Arcadia Account is a user-owned smart contract.
-Arcadia Vaults are deployed through a proxy factory by the user.
-Doing so, the user becomes the sole owner of the deployed vault.
-Arcadia doesn’t take ownership of your assets and in no way can Arcadia withdraw, deposit or take any other action on the users’ behave.
+Account owners can appoint one or more Asset Managers, including external smart contracts, which can take actions on behave of the Account owner.
+
+The Asset Manager is a fully trusted role, and should be used with care.
+No Account owner should set an Asset Manager which he doesn’t trust with their funds?
+
+The asset manager has multiple use-cases, a few examples are (non exhaustive list):
+\begin{itemize}
+    \item Automate strategies via programmatically controlled EOA.
+    \item Automate certain account actions (rebalancing, decrease leverage, stop losses...) with keeper networks.
+    \item Set an Entry point for user operations (abstracted transactions).
+    \item Delegate asset management to third parties.
+\end{itemize}
 
 \section{Arcadia Creditor}
 \label{sec:arcadia-creditor}
