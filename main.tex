@@ -770,22 +770,54 @@ The asset manager has multiple use-cases, a few examples are (non exhaustive lis
 
 \section{Arcadia Creditor}
 \label{sec:arcadia-creditor}
+A Creditor is a (set of) smart contract(s) which accepts and trusts the value of the assets contained within Arcadia Accounts as collateral.
 
 \subsection{Generalised Creditor}
 
-\subsection{Composable}
-
 \subsection{Risk Management}
+The owner of a Creditor must set a Risk Manager.
+This role is responsible for setting and maintaining the correct collateral and liquidation factors for all assets.
+Next to these factors, the Risk Manager also sets the exposure limits against each individual asset. 
+
+In short, it protects the Creditor against market and other risks, and ensures the credit risk borne by the Creditor remains acceptable.
 
 \subsection{Accounting Liabilities}
-
-\subsection{Liquidations}
-
-\lipsum[5]
+A Creditor will express their liabilities in a certain numeraire.
+This represents the unit of accounting, for example USD, USDC or ETH.
 
 \subsection{Arcadia Lending Pools}
+Arcadia Lending is one example of a Creditor, developed by the Arcadia team and designed specifically to work together with the Arcadia Accounts.
 
-\lipsum[6]
+\subsubsection{Tranches}
+Each lending pool can consist of multiple Tranches.
+A Tranche is a slice of the total liquidity in the pool, where risk-reward can differ to other Tranches.
+For example, the Junior Tranche (or Insurance Tranche) can receive a larger portion of the interest payments and a larger portion of the liquidation penalties,
+but may be slashed first should any bad debt occur.
+
+Similarly, the Senior Tranche may have lower yields through interests and liquidations,
+but will only be slashed through bad debt as soon as the whole Junior Tranche is wiped out due to slashing.
+
+With some game-theory in mind, the overall risk-reward of the Junior Tranche will be higher than the Senior Tranche.
+
+\subsubsection{Accounting Liquidity}
+Any interested party can deposit funds into the lending pool.
+Users whom deposit (LPs) receive an ERC4626 yield bearing token (ybToken) in return, specifically for the Tranche in which the user deposited.
+This ybToken automatically accrues in value.
+All deposited funds (for one given Creditor) will reside in a single liquidity pool, independent of the amount of Tranches associated with it.
+As such, it forms a single pool of assets that can be used by borrowers.
+
+\subsubsection{Accounting Liabilities}
+The Account for which debt is taken out, will receive a debt bearing token (dbToken) which is not transferable.
+Similarly to the ybToken, the dbToken will increase in amount representing the interests paid by the borrower to the liquidity providers.
+
+Since only valid Arcadia Accounts can mint dbTokens, and since they are not transferable, every holder of a dbToken is per definition an Arcadia Account.
+
+\subsection{Interests}
+
+\subsection{Liquidations}
+Every Creditor must ensure a suitable liquidation flow is foreseen in case the Account's health status works against the Account owner.
+The Arcadia team already developed a robust liquidation flow which can be used by other Creditors.
+
 
 \begin{figure}
     \label{fig:arcadia-logo}
