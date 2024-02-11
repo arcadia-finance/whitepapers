@@ -809,50 +809,114 @@ The Arcadia Account of the Debtors will use the same numeraire for the margin ca
 
 \subsubsection{Risk Management}
 The owner of a Creditor must set a Risk Manager.
+The Risk manager can be both an EOA or a smart contract.
 
 The Risk Manager is responsible for setting and maintaining the correct collateral and liquidation factors for all assets that can be used by Debtors as collateral.
 Next to these factors, the Risk Manager also sets the exposure limits against each individual asset. 
 
 In short, it protects the Creditor against market and other risks, and ensures the credit risk borne by the Creditor remains acceptable.
 
+\subsubsection{Allowed Account Versions}
+a Creditor can set one or more Account versions as approved,
+meaning that any Account on an approved version is able to take liabilities from the Creditor.
+
 \subsubsection{Liquidations}
 Every Creditor must ensure a suitable liquidation flow is foreseen in case an Account's health state drops to liquidatable,
 as explained in Paragraph \ref{subsubsec:margin-account-health-states}.
 
-The Arcadia team already developed a robust liquidation flow which can be re-used by other Creditors.
+The Arcadia team already developed a robust liquidation flow which can be re-used by other Creditors,
+which is further described in Paragraph \ref{subsubsec:liquidations}.
 
 \subsection{Arcadia Lending Pools}
 The Arcadia Lending Pools are just one example of an implementation of an Arcadia Creditor.
 
-It is peer-to-pool lending protocol developed by the Arcadia team.
+An Arcadia Lending Pool is peer-to-pool lending protocol, developed by the Arcadia team.
+On a conceptual level, Arcadia consists of a two-sided lending market between liquidity providers and borrowers:
 
-Next 
+Since the Arcadia Lending Pools Arcadia are an implementation of the Arcadia Creditor,
+they come with the features as mentioned in Paragraph \ref{sec:arcadia-creditor}.
 
-\subsubsection{Accounting Liabilities}
-The Account for which debt is taken out, will receive a debt bearing token (dbToken) which are not transferable.
-Similarly to the ybToken, the dbToken will increase in amount representing the interests paid by the borrower to the liquidity providers.
-
-Since only valid Arcadia Accounts can mint dbTokens, and since they are not transferable, every holder of a dbToken is per definition an Arcadia Account.
-
-\subsubsection{Tranches}
-Each lending pool can consist of multiple Tranches.
-A Tranche is a slice of the total liquidity in the pool, where risk-reward can differ to other Tranches.
-For example, the Junior Tranche (or Insurance Tranche) can receive a larger portion of the interest payments and a larger portion of the liquidation penalties,
-but may be slashed first should any bad debt occur.
-
-Similarly, the Senior Tranche may have lower yields through interests and liquidations,
-but will only be slashed through bad debt as soon as the whole Junior Tranche is wiped out due to slashing.
-
-With some game-theory in mind, the overall risk-reward of the Junior Tranche will be higher than the Senior Tranche.
-
-\subsubsection{Accounting Liquidity}
-Any interested party can deposit funds into the lending pool.
-Users whom deposit (LPs) receive an ERC4626 yield bearing token (ybToken) in return, specifically for the Tranche in which the user deposited.
-This ybToken automatically accrues in value.
-All deposited funds (for one given Creditor) will reside in a single liquidity pool, independent of the amount of Tranches associated with it.
-As such, it forms a single pool of assets that can be used by borrowers.
+Next to that, the Lending Pools also come with a number of innovations compared to other peer-to-pool lending protocols.
 
 \subsection{Interests}
+Arcadia Lending will use a variable interest rate, depending on the utilization rate of the underlying lending pool.
+
+Every-time a user interacts with the Lending Pool (depositing/withdrawing liquidity, taking/repaying debt),
+the accounting logic for interest payments is triggered and the new interest rate is calculated.
+Interests are continuously compounding.
+
+The ERC-4626 standard is used to represent both the open positions of Debtors (see Paragraph \ref{subsubsec:accounting-liabilities}),
+as the yield bearing positions of liquidity providers (see Paragraph \ref{subsubsec:accounting-liquidity}).
+Using the ERC-4626 standard makes the accounting logic gas efficient and ensures composability with existing protocols and infrastructure.
+
+\subsubsection{Accounting Liabilities}
+\label{subsubsec:accounting-liabilities}
+When a Debtor borrows from the Lending Pool,
+an ERC4626 token (the debt token or dToken) will be minted to his/her Arcadia Account.
+The dTokens tokens are not transferable.
+
+The interests on all debt are automatically and continuously accruing via the ERC4626 standard.
+
+\subsubsection{Tranches}
+Each lending pool consists of one or more risk Tranches.
+A Tranche is a slice of the total liquidity in the pool, with a different risk-reward profile compared to other Tranches.
+
+For example, the most Junior Tranche (or Insurance Tranche) receives a larger relative share of the interest payments and a larger relative share of the liquidation penalties,
+but is slashed first should any bad debt occur.
+
+Similarly, a more Senior Tranche may have lower yields through interests and liquidations,
+but will only be slashed because of bad debt as soon all the more Junior Tranches are completely slashed.
+
+With some game-theory in mind, the overall risk-reward of a more Junior Tranche will be higher than of a more Senior Tranche.
+
+The main advantage of risk Tranches is that Liquidity Providers with different risk/reward preferences can provide liquidity,
+but that all liquidity is still pooled in the same underlying Lending Pool.
+Not fragmenting the liquidity over different pools results in deeper liquidity for the borrowers and more stable interest rates.
+
+\subsubsection{Accounting Liquidity}
+\label{subsubsec:accounting-liquidity}
+Anyone who owns the underlying asset of the Lending Pool, can deposit liquidity via one of the Tranches.
+
+When a Liquidity Provider (LP) deposits liquidity, they receive an ERC4626 yield bearing token (ybToken).
+Each Tranche will have its own ERC4626 token.
+
+The Lending Pool will do the accounting how much liquidity is owned by each Tranche,
+while the tranches in turn will do the accounting of how much of that liquidity is owned by their respective LPs.
+
+Yield earned through interests and liquidation fees is divided over the different Tranches
+(more Junior tranches will earns a bigger relative share of the yield).
+And via the ERC4626 standard the yield is further pro-rata distributed to the Tranches LPs.
+
+\subsubsection{Liquidations}
+\label{subsubsec:liquidations}
+Liquidation within Arcadia's system is conducted via a three-step process using a Gradual Dutch Auction.
+
+Initially, anyone can initiate the liquidation of an account that falls below the liquidatable health threshold,
+receiving a reward for doing so.
+
+The auction that follows sees the accounts asset prices gradually decrease until a buyer,
+typically an MEV searcher looking to minimize slippage, steps in and places a bid.
+The process allows for partial liquidations to reduce market impact.
+
+Anyone can end the auction, and also receives a reward for doing so, if any if the following conditions are met:
+\begin{itemize}
+    \item The Account is back in a healthy state.
+    \item All debt is repaid.
+    \item All collateral assets are sold.
+    \item A certain amount of time (set by the Lending Pool) has passed.
+\end{itemize}
+
+After the auction is successfully ended, the liquidation is settled.
+There are three different scenarios how a liquidation can be settled,
+depending on the total proceeds of the auction relative to the debt and liquidation penalties:
+\begin{enumerate}
+    \item If the auction proceeds are less than the debt,
+    the shortfall is covered by the junior risk tranche's tokens.
+    \item If the auction proceeds exceed the debt but is under the debt plus liquidation penalty,
+    the surplus is shared between Arcadia's treasury and the junior tranche.
+    \item If the auction proceeds surpass the debt and the liquidation penalty cap,
+    excess funds after penalty distribution are returned to the account's original owner.
+\end{enumerate}
 
 
 \begin{figure}
