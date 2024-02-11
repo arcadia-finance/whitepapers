@@ -51,9 +51,11 @@
 
 \section{Introduction (To Do)} 
 \label{sec:introduction}
-This paper will explain the rationale why we are building the Arcadia Finance Technology Stack, and go over its technical implementation.
+This paper will explain the rationale why we are building the Arcadia Finance Technology Stack,
+and go over its technical implementation.
 
-The Arcadia Financial Technology Stack is a set of on-chain, inter-linked financial protocols, centered around collateral management.
+The Arcadia Financial Technology Stack is a set of on-chain, inter-linked financial protocols,
+centered around collateral management.
 They facilitate non-trusting peers to close financial contracts without the need of intermediaries.
 
 It consists out of three protocols, each with distinct responsibilities and permissions:
@@ -248,6 +250,7 @@ Most notable are the proposals for Account Abstraction (e.g. EIP-3074 and EIP-43
 Both abstractions are already successfully applied (albeit in a somewhat non-standardized form) within DeFi by Decentralised Exchanges, NFT-marketplaces and their aggregators.
 
 \subsection{New Architectures}
+\label{subsec:new-architectures}
 During the last months many solutions were proposed by different protocols and stakeholders on how to build a more robust decentralised financial system.
 Notable recent papers are from Uniswap V4\cite{adams2023uniswap}, Morpho\cite{gontier2023morpho} and Euler\cite{euler2023protocols}.
 All mention similar concepts as the distinction between product and protocol, modularization of the protocol, oracle agnostic implementations and explicitly separating the logic of the protocol in different layers,
@@ -615,6 +618,7 @@ A similar derivation as in Paragraph \ref{subsubsec:initial-margin} can be made 
 \end{equation}
 
 \subsubsection{Margin Account Health States}
+\label{subsubsec:margin-account-health-states}
 There are three different account states, depending on the Used Margin of the Account and the risk adjusted total values of of the Account.
 
 \begin{enumerate}
@@ -770,23 +774,65 @@ The asset manager has multiple use-cases, a few examples are (non exhaustive lis
 
 \section{Arcadia Creditor}
 \label{sec:arcadia-creditor}
-A Creditor is a (set of) smart contract(s) which accepts and trusts the value of the assets contained within Arcadia Accounts as collateral.
+An Arcadia Creditor is a (set of) smart contract(s),
+that does the accounting of the open position(s) between one or more Debtor(s) and one or more Creditor(s),
+and where all open positions are fully secured by the collateral held in Arcadia Accounts,
+owned by each of the Debtors.
+
+Examples of Creditors can be implementations of peer-to-peer lending protocols, peer-to-pool lending, perpetual futures contracts, options contracts...
+An Arcadia Creditor can be implemented for basically every financial contract or protocol where a party has, or can have, liabilities.
 
 \subsection{Generalised Creditor}
+Since the Arcadia Financial stack is open and permissionless,
+every financial contract or protocol with one or more Debtors,
+can build on top of the Arcadia financial stack.
 
-\subsection{Risk Management}
+Protocols that which to do so, only have to implement the Arcadia Creditor interface
+and are immediately compatible with the Arcadia Registry and Arcadia Accounts.
+
+Next to the advantages as laid out in Paragraph \ref{subsec:new-architectures},
+this means they don't have to implement any logic for collateral management and margin calculations.
+Greatly reducing smart contract development time, auditing costs and go to market times.
+
+In the next paragraphs we will discuss the most important features of the Arcadia Creditor interface.
+
+\subsubsection{Accounting Liabilities}
+Most important is the correct accounting of the open positions of the Debtors.
+As explained in Paragraph \ref{subsubsec:margin-account-health-states},
+the open position is used for the margin calculations to determine the health state of the Arcadia Account of Debtor.
+Which in turn guarantees that all liabilities can be paid back to the Creditor.
+
+A Creditor must denominate their liabilities in a certain numeraire.
+This represents the unit of accounting, for example USD, USDC or ETH.
+
+The Arcadia Account of the Debtors will use the same numeraire for the margin calculations.
+
+\subsubsection{Risk Management}
 The owner of a Creditor must set a Risk Manager.
-This role is responsible for setting and maintaining the correct collateral and liquidation factors for all assets.
+
+The Risk Manager is responsible for setting and maintaining the correct collateral and liquidation factors for all assets that can be used by Debtors as collateral.
 Next to these factors, the Risk Manager also sets the exposure limits against each individual asset. 
 
 In short, it protects the Creditor against market and other risks, and ensures the credit risk borne by the Creditor remains acceptable.
 
-\subsection{Accounting Liabilities}
-A Creditor will express their liabilities in a certain numeraire.
-This represents the unit of accounting, for example USD, USDC or ETH.
+\subsubsection{Liquidations}
+Every Creditor must ensure a suitable liquidation flow is foreseen in case an Account's health state drops to liquidatable,
+as explained in Paragraph \ref{subsubsec:margin-account-health-states}.
+
+The Arcadia team already developed a robust liquidation flow which can be re-used by other Creditors.
 
 \subsection{Arcadia Lending Pools}
-Arcadia Lending is one example of a Creditor, developed by the Arcadia team and designed specifically to work together with the Arcadia Accounts.
+The Arcadia Lending Pools are just one example of an implementation of an Arcadia Creditor.
+
+It is peer-to-pool lending protocol developed by the Arcadia team.
+
+Next 
+
+\subsubsection{Accounting Liabilities}
+The Account for which debt is taken out, will receive a debt bearing token (dbToken) which are not transferable.
+Similarly to the ybToken, the dbToken will increase in amount representing the interests paid by the borrower to the liquidity providers.
+
+Since only valid Arcadia Accounts can mint dbTokens, and since they are not transferable, every holder of a dbToken is per definition an Arcadia Account.
 
 \subsubsection{Tranches}
 Each lending pool can consist of multiple Tranches.
@@ -806,17 +852,7 @@ This ybToken automatically accrues in value.
 All deposited funds (for one given Creditor) will reside in a single liquidity pool, independent of the amount of Tranches associated with it.
 As such, it forms a single pool of assets that can be used by borrowers.
 
-\subsubsection{Accounting Liabilities}
-The Account for which debt is taken out, will receive a debt bearing token (dbToken) which is not transferable.
-Similarly to the ybToken, the dbToken will increase in amount representing the interests paid by the borrower to the liquidity providers.
-
-Since only valid Arcadia Accounts can mint dbTokens, and since they are not transferable, every holder of a dbToken is per definition an Arcadia Account.
-
 \subsection{Interests}
-
-\subsection{Liquidations}
-Every Creditor must ensure a suitable liquidation flow is foreseen in case the Account's health status works against the Account owner.
-The Arcadia team already developed a robust liquidation flow which can be used by other Creditors.
 
 
 \begin{figure}
