@@ -58,7 +58,7 @@ and how it is technically implemented.
 
 The Arcadia Financial Technology Stack is a set of on-chain, inter-linked financial protocols,
 centered around collateral management and margined positions.
-They facilitate non-trusting Debtors and Creditors to close financial contracts without the need of intermediaries.
+They facilitate non-trusting Debtors and Creditors to close financial contracts without the need of trusted intermediaries.
 
 It consists out of three protocols, each with distinct responsibilities and permissions:
 \begin{itemize}
@@ -79,7 +79,7 @@ pinpointing current shortcomings and inefficiencies, and discusses how novel arc
 In Section \ref{sec:arcadia-financial-technology-stack} we introduce our implementation of such a novel architecture:
 the Arcadia Financial Technology stack.
 
-Finally, each of the underlying protocols of the Arcadia Financial Technology stack is discussed in detail 
+Finally, each of the underlying protocols of the Arcadia Financial Technology stack are discussed in detail 
 in Sections \ref{sec:arcadia-registry}, \ref{sec:arcadia-accounts} and \ref{sec:arcadia-creditor}.
 
 \section{Terminology}
@@ -88,8 +88,8 @@ in Sections \ref{sec:arcadia-registry}, \ref{sec:arcadia-accounts} and \ref{sec:
 
 \textsc{Debtors and Creditors:} We will often use the terms Debtors and Creditors throughout this paper,
 our definition is broader than the commonly accepted context within traditional debt arrangements.
-We use the term Debtor for any holder of a financial instrument that results in liabilities on the balance sheet 
-(borrowers, option writers, payers of cash-settled futures contract or swaps...). 
+We use the term Debtor for any holder of a financial instrument that results in liabilities on the balance sheet
+(borrowers, option writers, payers of cash-settled futures contract or swaps...).
 While the Creditor refers to the entity to whom the liability is owed.
 
 \textsc{Margin:} The value of collateral assets that a Debtor must hold in a Margin Account to cover the credit risk of its Creditor(s).
@@ -105,7 +105,8 @@ It doe so by guaranteeing that the total value of all assets within the Account 
 \section{History of Collateral Management}
 \label{subsec:history-of-collateral-management}
 
-Withing the financial system, Collateral serves a primary function in mitigating the counterparty risks borne by Creditors, in case Debtors would fail to fulfill their financial liabilities.
+Withing the financial system, Collateral serves a primary function in mitigating the counterparty risks borne by Creditors,
+in case Debtors would fail to fulfill their financial liabilities.
 
 \subsection{Origin}
 Evidence of collateralized loans, also known as secured loans, can be traced back to at least 400 BCE in Ancient Greece \cite{millett2002lending}.
@@ -115,40 +116,46 @@ In these early transactions, borrowers provided tangible assets as collateral to
 Over the past decades we have witnessed significant advancements in collateral management practices.
 
 With the rise of complex financial instruments and the globalization of markets, the role of collateral has expanded beyond traditional lending.
-Collateral is now used to secure a wide range of financial instruments, including derivatives trading, margin accounts, and other sophisticated financial contracts.
+Collateral is now used to secure a wide range of financial instruments, including derivatives trading, margin accounts,
+and other sophisticated financial contracts.
 
 The digitalisation of the financial system greatly improved the efficiency of the exchange and settlement of collateral.
 Reporting, margining and reconciliation processes could be executed on a daily basis instead of on a weekly or even monthly basis \cite{simmons2019collateral}.
-% Add some figures or numbers here?
 
 The emergence of blockchain technology and decentralized finance (DeFi) led to a new wave of innovation for collateral management.
 Blockchain has some excellent properties with regards to collateral management:
 \begin{itemize}
     \item With it's immutable and transparent ledger, collateral can be audited 24/7.
     \item Smart contracts enforce margin requirements real time on a 24/7 continuous basis.
-    \item The atomic execution of transactions avoid expensive reconciliation processes and eliminates settlement risk.
-    \item The atomic execution also enables optimistic execution of transactions (e.g. flash loans) which can greatly improve processes such as refinancing loans or even enable completely new financial use-cases.
-    \item The permissionless nature of blockchain and Dapps (Decentralised Applications), combined with a shared state between all those applications, make different financial applications and assets composable and inter-operable by default.
+    \item Atomic execution of transactions avoids expensive reconciliation processes and eliminates settlement risk.
+    \item Atomic execution of transactions enables optimistic execution of transactions (e.g. flash loans),
+    which can greatly improve processes such as refinancing loans or even enable completely new financial use-cases.
+    \item The permissionless nature of blockchain and Dapps (Decentralised Applications),
+    combined with a shared state between all those applications,
+    make different financial applications and assets composable and inter-operable by default.
 \end{itemize}
 
 It is no coincidence that some of the first blockchain applications with product market fit, were secured lending protocols.
-These early pioneers like Maker\cite{team2017dai}, Aave\cite{thornburg2020aave} or Compound\cite{leshner2019compound} rely on collateralization as the only way to mitigate counter party risks and work with over-collateralized loans.
+These early pioneers, like Maker\cite{team2017dai}, Aave\cite{thornburg2020aave} or Compound\cite{leshner2019compound},
+rely on collateralization as the only way to mitigate counter party risks and work with over-collateralized loans.
 As such they enable peer-to-peer or even peer-to-contract loans, without the need of any trusted intermediaries.
 
 \subsection{Collateral management in crisis}
 Collateralization, both in the traditional financial world and in DeFi, is not without its problems.
 Recent crises in both industries highlight the need for better collateral management infrastructure.
 
-Bad collateral management, rehypothecation of collateral, opaque accounting practices of collateral,
+Bad collateral management, rehypothecation of collateral, opaque accounting practices,
 and outright fraud with collateralized assets, are all cited as root causes\cite{hellwig2008causes} behind the 2008 financial crisis.
 Following the crisis, a variety of major regulations were introduced (e.g. EMIR in the European Union, or Dodd-Frank in the USA).
 While these packages were successful in stabilizing the financial system, they have clear centralization tendencies\cite{gregory2014central}.
-The major beneficiaries of said regulations are the major established institutions, mandatory intermediaries for central clearing, central banks and the regulatory bodies themselves.
+The major beneficiaries of said regulations are the major established institutions, mandatory intermediaries for central clearing,
+central banks and the regulatory bodies themselves.
 This might paradoxically cement even greater systemic risks into the financial system.
 
 In 2022 DeFi experienced it's own financial crisis.
 In a few months time, many of the ecosystem's key (albeit mostly centralised) players collapsed, and removed all liquid with them.
-Again bad collateral management, rehypothecation of collateral, opaque protocol mechanisms, and outright fraud with collateralized assets were at the root of the problem.
+Again bad collateral management, rehypothecation of collateral, opaque protocol mechanisms,
+and outright fraud with collateralized assets were at the root of the problem.
 
 A recurring trend with protocols that imploded in 2021 and 2022 is that the lack of collateralization was obfuscated behind complex protocol designs and narratives. 
 Some of the notorious examples are:
@@ -161,11 +168,11 @@ Some of the notorious examples are:
 
 DeFi protocols should focus more on collateralization, and less on Complex tokenomics that obfuscate who ends up paying when things go bad.
 
-\subsection{The Future?}
+\subsection{The Future}
 The over-collateralized DeFi protocols however, operated remarkably well during the aforementioned crisis, even better than their traditional counterparts.
 This is well illustrated by some of the collapsed centralised entities, active in the space until 2022, that had both on- and off-chain liabilities.
 All on-chain Creditors were repaid in a timely and orderly fashion, as enforced by their smart contracts.
-While the lawsuits for the many off-chain Creditors are still ongoing (and probably will be for many years).
+While the lawsuits for the many off-chain Creditors are, at the time of writing this paper, still ongoing (and probably will be for many years).
 
 It is for these types of crises that liabilities are secured in the first place.
 These events further strengthened our vision that blockchain-based protocols have the potential to become the dominant infrastructure for collateral management.
@@ -180,7 +187,7 @@ But before we get there, a number of Inefficiencies of current DeFi protocols mu
 \subsection{Inefficiencies}
 \label{subsec:inefficiencies}
 
-In the next sections we will highlight a number of inefficiencies,
+In the next paragraphs we will highlight a number of inefficiencies,
 which need to be overcome before DeFi can be broadly adopted as the go-to infrastructure for collateral management.
 
 \subsubsection{Hacks and exploits}
@@ -201,7 +208,7 @@ While the nature of the financial contracts may be very different for each of th
 \end{itemize}
 
 Pricing of assets, management of assets and liquidation logic is complex, error prone and most mistakes easily lead to severe user losses.
-Today all protocols implement these redundantly, even for new versions of the same protocol. 
+Today all protocols implement these redundantly, even for new versions of the same protocol.
 Not only is this very costly in development time, the core logic is rewritten and re-deployed time and time again, and with each new deployment, new bugs can be introduced.
 
 Being able to build on top of battle tested code would benefit smart contract developers, protocols, users and the overall ecosystem.
@@ -209,8 +216,8 @@ Being able to build on top of battle tested code would benefit smart contract de
 \subsubsection{Fragmented and isolated collateral}
 \label{subsubsec:fragmented-collateral}
 
-The average DeFi-user has collateralized assets fragmented and isolated across a multitude of protocols (do we have any numbers on this?), and many quality assets are sitting idle.
-While isolated margin positions have there benefits (they isolate risks), they are not capital efficient.
+The average DeFi-user has collateralized assets fragmented and isolated across a multitude of protocols, and many quality assets are sitting idle.
+While isolated margin positions have their benefits (they isolate risks), they are not capital efficient.
 Having the ability to use a portfolio of assets as collateral improves the capital efficiency for a number of reasons:
 \begin{itemize}
     \item The volatility of a portfolio of assets is always equal to, or lower than the weighted volatility of the individual assets.
@@ -221,7 +228,7 @@ Having the ability to use a portfolio of assets as collateral improves the capit
 \end{itemize}
 
 Having a global shared state across applications and assets is often cited as one of the key advantages of blockchain over centralised financial infrastructures\cite{schar2021decentralized}.
-This should open up a whole new solution space for Debtors to manage collateralized positions, 
+This should open up a whole new solution space for Debtors to manage collateralized positions,
 and might even enable a single Debtor to share its margin between non-trusting Creditors without intermediaries.
 Hence it is quite ironic that traditional brokers and clearing houses offer more advanced capabilities for cross- and portfolio-margined positions, compared to the state-of-the-art DeFi protocol.
 
@@ -319,7 +326,7 @@ Lastly, the Generalised Creditor can be any protocol or financial contract where
 The protocol has to implement a single interface to become interoperable with the rest Arcadia Financial stack.
 
 The protocols devs only have to implement their creditor specific smart contracts,
-and get the management of assets, pricing of assets, margin calculations...  out of the box.
+and get the management of assets, pricing of assets, margin calculations... out of the box.
 
 In the next Sections we will discuss each of the three different sub-protocols in more detail.
 
@@ -359,13 +366,13 @@ There are two main categories of modules: Oracle Modules and Asset Modules.
 The Oracle Module implements the logic to convert oracle-rate of different oracle technologies into a standardized format.
 Each different oracle implementation (e.g. Chainlink oracles, Pyth oracles, Uniswap TWAPs...) has its own Oracle Module.
 
-Every oracle has a quote-asset and a base-asset, the oracle-rate $R_{oracle}$ reflects how much tokens of the quote-asset are required to buy 1 token of the base-asset.
+Every oracle has a quote-asset and a base-asset, the oracle-rate $r_{oracle}$ reflects how much tokens of the quote-asset are required to buy 1 token of the base-asset.
 The precision $S_{oracle}$ of oracles is variable and can even be a binary fixed-point number.
 Since all pricing logic within the Arcadia Protocol uses fixed-point numbers with 18 decimals precision,
-a correction from the oracle precision to a precision of 18 decimals is required for the standardized oracle rate $R_{ba\rightarrow qa}$, returned by the Oracle Module.
+a correction from the oracle precision to a precision of 18 decimals is required for the standardized oracle rate $r_{ba\rightarrow qa}$, returned by the Oracle Module.
 \begin{equation}
     \label{eq:oracle-module}
-    R_{ba\rightarrow qa} = R_{oracle} \frac{10^{18}}{S_{oracle}}
+    r_{ba\rightarrow qa} = r_{oracle} \frac{10^{18}}{S_{oracle}}
 \end{equation}
 
 \subsection{Asset Modules}
@@ -378,30 +385,30 @@ Asset Modules can be further divided into two distinct groups: Primary Asset Mod
 
 \subsubsection{Primary Asset Modules}
 Primary assets are defined as assets that are not composed of other assets.
-Primary Assets must be priced using one or more on-chain oracles, for which the rates $R_{ba\rightarrow qa}$ are fetched from the Oracle Modules via the Registry.
+Primary Assets must be priced using one or more on-chain oracles, for which the rates $r_{ba\rightarrow qa}$ are fetched from the Oracle Modules via the Registry.
 
 The Primary Asset Modules will denominate all values of their assets in USD with 18 decimals precision.
-Since the asset amount, $A_{asset}$ can have a variable precision (number of decimals),
-a correction $S_{asset}$ is again applied to bring the usd-value of the asset $V_{asset}^{usd}$ to 18 decimals precision.
+Since the asset amount, $a_{asset}$ can have a variable precision (number of decimals),
+a correction $S_{asset}$ is again applied to bring the usd-value of the Primary Asset, $v_{asset}^{usd}$, to 18 decimals precision.
 
 Depending of the direction of the oracle, the value of the Primary Asset is calculated different.
 When the asset is the base-asset of the oracle:
 \begin{equation}
-    V^{usd}(A_{asset}) = R_{asset\rightarrow usd} \frac{A_{asset}}{S_{asset}}
+    v^{usd}_{asset}(a_{asset}) = r_{asset\rightarrow usd} \frac{a_{asset}}{S_{asset}}
 \end{equation}
 
 When the asset is the quote-asset of the oracle:
 \begin{equation}
-    V^{usd}(A_{asset}) = \frac{1}{R_{usd\rightarrow asset}} \frac{A_{asset}}{S_{asset}}
+    v^{usd}_{asset}(a_{asset}) = \frac{1}{r_{usd\rightarrow asset}} \frac{a_{asset}}{S_{asset}}
 \end{equation}
 
 For some assets, there might not be a direct oracle to USD.
 For these assets multiple oracles can be chained together:
 \begin{equation}
-    V^{usd}(A_{asset}) = R_{asset\rightarrow x} R_{x\rightarrow usd} \frac{A_{asset}}{S_{asset}}
+    v^{usd}_{asset}(a_{asset}) = r_{asset\rightarrow x} r_{x\rightarrow usd} \frac{a_{asset}}{S_{asset}}
 \end{equation}
 \begin{equation}
-    V^{usd}(A_{asset}) = \frac{R_{y\rightarrow usd}}{R_{y\rightarrow asset}} \frac{A_{asset}}{S_{asset}}
+    v^{usd}_{asset}(a_{asset}) = \frac{r_{y\rightarrow usd}}{r_{y\rightarrow asset}} \frac{a_{asset}}{S_{asset}}
 \end{equation}
 
 \subsubsection{Derived Asset Modules}
@@ -409,30 +416,30 @@ Derived assets are defined as assets that are composed of one or more underlying
 Examples of derived assets are liquidity positions of AMMs, staked assets, yield bearing tokens.
 
 The derived Asset Modules will calculate the usd-value in three steps.
-It will first calculate the amounts of the underlying assets $A_{u}$, given the amount of the asset to be priced $A_{asset}$.
+It will first calculate the amounts of the underlying assets $a_{u}$, given the amount of the asset to be priced $a_{asset}$.
 \begin{equation}
     \label{eq:underlying-asset-amounts}
-    A_{u} = f_{u}(A_{asset})
+    a_{u} = f_{u}(a_{asset})
 \end{equation}
-Where $f_{u}(A)$ is a flashloan-resistant and protocol specific function.
-For example for a Uniswap V2 Liquidity Positions it can be derived from the reserves of the pool,
+Where $f_{u}(a)$ is a flashloan-resistant and protocol specific function.
+For example for a Uniswap V2 Liquidity Positions it can be derived from the reserves of the Uniswap V2 pool contract,
 or for ERC4626 tokens it can be calculated by calling \texttt{convertToAssets(shares)}.
 
-In a second step the Derived Asset Module will recursively fetch the usd-value of each of the underlying assets $V^{usd}(A_{u})$ from the Registry,
-using the underlying asset amounts $A_{u}$ from Equation \ref{eq:underlying-asset-amounts}.
+In a second step, the Derived Asset Module will recursively fetch the usd-value of each of the underlying assets $v^{usd}(a_{u})$ from the Registry,
+using the underlying asset amounts $a_{u}$ from Equation \ref{eq:underlying-asset-amounts}.
 \begin{equation}
-    V^{usd}(A_{u}) = V^{usd}(f_{u}(A_{asset}))
+    v^{usd}(a_{u}) = v^{usd}(f_{u}(a_{asset}))
 \end{equation}
-The underlying assets of a derived assets can be derived assets themselves (e.g. staked LP tokens, or liquidity positions of AMMs where one of the tokens is a yield bearing asset).
-In this case the underlying asset will in turn fetch the usd-values of their underlying asset(s).
+The underlying assets of a derived asset can be derived assets themselves (e.g. staked LP tokens, or liquidity positions of AMMs where one of the tokens is a yield bearing asset).
+In this case, the underlying asset will in turn fetch the usd-values of their underlying asset(s) recursively.
 The stop condition of the recursion is when the underlying asset is a Primary asset, or if a maximum recursion depth (set by the Creditor) is reached.
 
 By working with modular and recursive Asset Modules, the pricing logic of the Registry fully captures the benefits of composability withing DeFi.
 
-Lastly, the total usd value of the asset, $V^{usd}(A_{asset})$, is calculated as the sum of the usd values of its underlying assets.
+Lastly, the total usd value of the asset, $v^{usd}(a_{asset})$, is calculated as the sum of the usd values of its underlying assets.
 Since all underlying assets are valued with 18 decimals precision, no additional precision correction is required.
 \begin{equation}
-    V^{usd}(A_{asset}) = \sum_{u}{V^{usd}(A_{u})} = \sum_{u}{V^{usd}(f_{u}(A_{asset}))}
+    v^{usd}(a_{asset}) = \sum_{u}{v^{usd}(a_{u})} = \sum_{u}{v^{usd}(f_{u}(a_{asset}))}
 \end{equation}
 
 \subsection{Portfolio Pricing}
@@ -440,26 +447,28 @@ Since all underlying assets are valued with 18 decimals precision, no additional
 Section \ref{subsec:modular-pricing-logic} explains how the Registry can calculate the value of assets in usd.
 Building further on this logic, the Registry can price any combination of assets in any numeraire (the asset used as unit of account).
 
-Given a portfolio $P$ consisting of assets with amount $A_{i}$, the value of the portfolio denominated in a certain numeraire $V_{spot}^{num}(P)$ with precision $S_{num}$ is given as:
+Given a portfolio $P$ consisting of assets with amount $a_{i}$, the value of the portfolio denominated in a certain numeraire $v_{spot}^{num}(P)$ is given as:
 \begin{equation}
     \label{eq:portfolio-value-mtm}
-    V_{spot}^{num}(P) = \frac{\sum_{i}{V^{usd}(A_{i})}}{R_{num\rightarrow usd}}\frac{S_{num}}{10^{18}}
+    v_{spot}^{num}(P) = \frac{\sum_{i}{v^{usd}(a_{i})}}{r_{num\rightarrow usd}}\frac{S_{num}}{10^{18}}
 \end{equation}
+A correction $S_{num}$ is applied to bring the value from the 18 decimals precision to the actual decimal precision of the numeraire.
 
 The result of equation \ref{eq:portfolio-value-mtm} is the spot or MtM (mark-to-market) value of the portfolio.
-Next to the MtM value of the portfolio, the Registry can also calculate risk adjusted portfolios value,
+
+Next to the MtM value of the portfolio, the Registry can also calculate risk adjusted portfolios values,
 where assets are discounted with a asset-numeraire specific risk factor $RF_{i}^{c}$, set by each Creditor.
-The risk adjusted portfolio value $V_{risk}^{num}(P)$ is then given as:
+The risk adjusted portfolio value $v_{risk}^{num}(P)$ is then given as:
 \begin{equation}
     \label{eq:portfolio-value-risk-adjusted}
-    V_{risk}^{num}(P) = \frac{\sum_{i}{RF_{i}^{c} \cdot V^{usd}(A_{i})}}{R_{num\rightarrow usd}}\frac{S_{num}}{10^{18}}
+    v_{risk}^{num}(P) = \frac{\sum_{i}{RF_{i}^{c} \cdot v^{usd}(a_{i})}}{r_{num\rightarrow usd}}\frac{S_{num}}{10^{18}}
 \end{equation}
 
-There are two important risk adjusted portfolios values: The Collateral Value $V_{coll}^{num}$ of the Account and the Liquidation Value $V_{liq}^{num}$ of the account.
+There are two important risk adjusted portfolios values: The Collateral Value $v_{coll}^{num}$ of the Account and the Liquidation Value $v_{liq}^{num}$ of the account.
 
 Both are used to check the Margin Requirements of the account.
-The Collateral Value can be calculated by plugging the asset-numeraire specific collateral factors $CF_{i}^{c}$ of each asset into equation \ref{eq:portfolio-value-risk-adjusted}.
-And the Liquid Value respectively by using the liquidation factors $LF_{i}^{c}$ of each asset.
+The Collateral Value can be calculated by plugging the asset-creditor specific collateral factors $CF_{i}^{c}$ of each asset into equation \ref{eq:portfolio-value-risk-adjusted}.
+And the Liquidation Value respectively by using the liquidation factors $LF_{i}^{c}$ of each asset.
 
 \subsection{Creditor Specific Risk Parameters}
 \label{subsec:creditor-specific-cisk-parameters}
@@ -480,10 +489,12 @@ to account for the additional complexity and smart contract risks of derived ass
     CF_{i}^{c} = f(\forall CF_{u}^{c}, RF_{p}^{c})
 \end{equation}
 
-The relation between the risk factor and the risk factors of the underlying assets will depend on the specific nature ot the derived asset.
-It can e.g. be the minimum of each risk factor of the underlying assets, a weighted average or something else.
+The relation between the risk factor of the derived asset and the risk factors of the underlying assets,
+will depend on the specific nature of the derived asset.
+It can be the minimum of each of the risk factors of the underlying assets, or a weighted average or something else.
 
-For derived assets with a single underlying asset the risk factor becomes straightforward and is just the multiplication of the risk factor of the underlying asset and the protocol specific risk factor.
+For derived assets with a single underlying asset,
+the risk factor becomes straightforward and is just the multiplication of the risk factor of the underlying asset and the protocol specific risk factor.
 As an example, take a protocol ($p$) with yield bearing assets, which has an $ETH$ and a $USDC$ vault.
 The collateral factors of the corresponding $pETH$ and $pUSDC$ tokens are:
 \begin{equation}
@@ -494,7 +505,7 @@ The collateral factors of the corresponding $pETH$ and $pUSDC$ tokens are:
 \end{equation}
 
 \subsubsection{Maximum Exposure}
-The maximum exposures give Creditors a tool to set an upper boundary against the overall exposure they can have against certain primary assets or protocols.
+The maximum exposures give Creditors a tool to set upper boundaries against the overall exposures they can have against certain primary assets or protocols of derived assets.
 Creditors can even choose to not be exposed to certain primary assets or protocols (via derived assets) by setting the corresponding maximum exposure to 0.
 
 There is again a difference how the maximum exposure is defined for primary assets and for derived assets.
@@ -508,14 +519,14 @@ The total exposure of a primary asset takes into account both direct deposits of
 If a maximum exposure is reached, no additional amount of the primary asset can be deposited, nor can any derived asset be deposited that is composed of the primary asset.
 
 For derived assets, there are two mechanisms that provide the Creditor to an upper bound for certain risks.
-As mentioned before, none of the primary assets of which the derived asset is composed can exceed their maximum exposure to mitigate risks of market manipulation and low liquidity.
+As mentioned before, none of the primary assets of which the derived asset is ultimately composed can exceed their maximum exposure to mitigate risks of market manipulation and low liquidity.
 Secondly, each creditor can set an upper limit to the total USD exposure of all derived assets of a certain protocol (e.g. the sum of all liquidity position of Uniswap V2).
-As such the Creditor can limit potential losses due to exploits in the protocol.
+As such, the Creditor can limit potential losses due to exploits in the protocol.
 
 \subsubsection{Minimum Margin}
 Liquidating unhealthy positions has a considerable gas cost, which liquidators take into account when deciding to liquidate a position or not.
 This gas cost is independent of the size of the open position.
-Not taking into account the size independent gas cost could lead to very small positions that are never profitable to liquidate.
+Without a Minimum Margin, this could lead to very small unhealthy positions that are never profitable to liquidate.
 Or even worse, liquidations that are successfully started, but never profitable to end.
 
 To avoid both problems, accounts must have a Creditor specific minimum value of collateral, the minimum margin $MM^{c}$, before they can open a position.
@@ -586,7 +597,7 @@ Hence the available margin equals the Collateral Value as defined in Paragraph \
 (we will use the terms 'available margin' and 'Collateral Value' interchangeable).
 \begin{equation}
     \label{eq:available-margin}
-    am = V_{coll}^{num} = \frac{\sum_{i}{CF_{i}^{c} \cdot V^{usd}(A_{i})}}{R_{num\rightarrow usd}}\frac{S_{num}}{10^{18}}
+    am = v_{coll}^{num} = \frac{\sum_{i}{CF_{i}^{c} \cdot v^{usd}(a_{i})}}{r_{num\rightarrow usd}}\frac{S_{num}}{10^{18}}
 \end{equation}
 
 \subsubsection{Open position}
@@ -636,17 +647,17 @@ The account now has an open position of $x$ and holds in total $x + IM_{i}^{c} \
     \label{eq:initial-margin}
     \begin{split}
         &op^c = x\\
-        &V^{num}_i = x + IM_{i}^{c} \cdot x
+        &v^{num}_i = x + IM_{i}^{c} \cdot x
     \end{split}
 \end{equation}
 
 When the minimal amount of collateral is deposited, the free margin will be zero, and after plugging Equation \ref{eq:available-margin} into \ref{eq:free-margin}, the used margin equals the collateral value:
 \begin{equation}
-    CF_{i}^{c} \cdot V^{num}_i = um
+    CF_{i}^{c} \cdot v^{num}_i = um
 \end{equation}
 And if we ignore the minimum margin (this will be small compared to the open position) this simplifies to:
 \begin{equation}
-    CF_{i}^{c} \cdot V^{num}_i = op^c
+    CF_{i}^{c} \cdot v^{num}_i = op^c
 \end{equation}
 And finally after plugging in Equations \ref{eq:initial-margin}, we find the relation between the initial margin and the Collateral Factor:
 \begin{equation}
@@ -671,20 +682,20 @@ There are three different account states, depending on the Used Margin of the Ac
 \begin{enumerate}
     \item \textsc{Healthy state:} The Account is in a healthy state if the used margin is smaller than the Collateral Value:
         \begin{equation}
-            um < V_{coll}
+            um < v_{coll}
         \end{equation}
 
         No account actions are restricted for Accounts in a healthy state, as long as the Account is still healthy at the end the action.
     \item \textsc{Unhealthy state:} The Account is in an unhealthy state if the used margin is smaller than the Collateral Value but bigger than the Liquidation Value:
         \begin{equation}
-            V_{coll} < um < V_{liq}
+            v_{coll} < um < v_{liq}
         \end{equation}
         
         Accounts in the unhealthy state can only be de-risked by or reducing the open position, or adding more collateral assets.
         It is not possible to withdraw any assets or increase the open position.
     \item \textsc{Liquidatable state:} The Account is in a liquidatable state if the used margin is smaller than the Liquidation Value:
         \begin{equation}
-            V_{liq} < um
+            v_{liq} < um
         \end{equation}
         
         When an account is in the liquidatable state, anyone can trigger a margin call.
