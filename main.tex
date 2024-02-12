@@ -137,7 +137,7 @@ As such they enable peer-to-peer or even peer-to-contract loans, without the nee
 Collateralization, both in the traditional financial world and in DeFi, is not without its problems.
 Recent crises in both industries highlight the need for better collateral management infrastructure.
 
-Bad collateral management, rehypothecation of collateral, opaque accounting practices,
+Bad collateral management, rehypothecation of collateral, opaque accounting practices
 and outright fraud with collateralized assets, are all cited as root causes\cite{hellwig2008causes} behind the 2008 financial crisis.
 Following the crisis, a variety of major regulations were introduced (e.g. EMIR in the European Union, or Dodd-Frank in the USA).
 While these packages were successful in stabilizing the financial system, they have clear centralization tendencies\cite{gregory2014central}.
@@ -310,7 +310,8 @@ This is exactly what we are building with the Arcadia Financial Technology stack
 \section{The Arcadia Financial Technology Stack}
 \label{sec:arcadia-financial-technology-stack}
 
-The Arcadia Financial Technology stack is our answer to resolve the inefficiencies outlined in Paragraph \ref{subsec:inefficiencies}.
+The Arcadia Financial Technology stack, illustrated in Figure \ref{fig:arcadia-financial-technology-stack},
+is our answer to resolve the inefficiencies outlined in Paragraph \ref{subsec:inefficiencies}.
 It is implemented for the Ethereum Virtual Machine (EVM) and consists out of three sub-protocols:
 \begin{itemize}
     \item The Arcadia Registry.
@@ -318,7 +319,12 @@ It is implemented for the Ethereum Virtual Machine (EVM) and consists out of thr
     \item The Generalised Creditor.
 \end{itemize}
 
-% Add image of how the how the three protocols interact
+\begin{figure}
+    \centering
+    \includegraphics[width=0.45\textwidth]{images/Arcadia-Financial-Technology-Stack.png}
+    \caption{The Arcadia Financial Technology Stack. \label{fig:arcadia-financial-technology-stack}}
+    \Description{Shematic overview of the Arcadia Financial Technology Stack.}
+\end{figure}
 
 The Arcadia Registry is the least opinionated sub-protocol and implements the core pricing and risk management logic.
 By having a shared Arcadia Registry, Creditors can reuse battle tested core logic.
@@ -357,8 +363,6 @@ It consists of a main coordinating smart contract (also referred to as The Regis
 Each Module is a separate smart contract with the pricing logic for specific Oracle implementations or specific Asset types.
 The Registry keeps mappings per Creditor of which Module to use for a certain asset.
 
-% Add image of how the how the registry and modules interact.
-
 It is the Creditor itself that sets these mappings, the Creditor decides which Modules to use for each asset they allow their Debtors to use as collateral.
 Different Creditors can use different Modules to price the same asset, or a Creditor can choose to not allow certain assets at all.
 
@@ -373,6 +377,15 @@ Working with this modular architecture has a number of advantages:
 \end{itemize}
 
 There are two main categories of modules: Oracle Modules and Asset Modules.
+And Asset Modules can be further divided in two sub-categories: Primary Asset Modules and Derived Asset Modules.
+An overview of the different modules, and their relations are illustrated in Figure \ref{fig:arcadia-registry}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.45\textwidth]{images/Arcadia-Registry.png}
+    \caption{The Arcadia Registry and Modules. \label{fig:arcadia-registry}}
+    \Description{Shematic overview of the Arcadia Registry.}
+\end{figure}
 
 \subsection{Oracle Modules}
 The Oracle Module implements the logic to convert oracle-rate of different oracle technologies into a standardized format.
@@ -689,9 +702,15 @@ A similar derivation as in Paragraph \ref{subsubsec:initial-margin} can be made 
 
 \subsubsection{Margin Account Health States}
 \label{subsubsec:margin-account-health-states}
-There are three different account states, depending on the Used Margin of the Account and the risk adjusted total values of of the Account.
+There are three different account states, as shown in Figure \ref{fig:health-states},
+depending on the Used Margin of the Account and the risk adjusted total values of of the Account.
 
-% Add image showing relation between values and health states.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.4\textwidth]{images/Health-States.png}
+    \caption{Margin Account health states. \label{fig:health-states}}
+    \Description{The Margin Account health states.}
+\end{figure}
 
 \begin{enumerate}
     \item \textsc{Healthy state:} The Account is in a healthy state if the used margin is smaller than the Collateral Value:
@@ -720,19 +739,25 @@ There are three different account states, depending on the Used Margin of the Ac
 \subsection{Upgradeability}
 \label{subsec:upgradeability}
 
-% Add image showing how proxy accounts point to logic contracts.
-
 Arcadia Accounts are based on the ERC1967 standard for Proxy accounts.
 Each account contract points to a certain Account logic contract.
 It is the logic contract that implements the features to: deposit/withdraw assets, do flash actions, manage assets, authorise delegations...
 
-Different implementations of the Account logic can (co)exist and each implementation is uniquely identified with a specific version in the Account factory.
+Different implementations of the Account logic can (co)exist and each implementation is uniquely identified with a specific version in the Account factory,
+as illustrated in Figure \ref{fig:proxy-accounts}.
 The Arcadia team can periodically push a new version to the Arcadia Factory, which might add new features, extend logic, or implement other improvements.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.45\textwidth]{images/Proxy-Accounts.png}
+    \caption{Arcadia Proxy Accounts and Account Logic Versions. \label{fig:proxy-accounts}}
+    \Description{Shematic of the Proxy Accounts and their relation to the Account Logic.}
+\end{figure}
 
 Creditors can determine which Account logic versions are allowed to be used by their Debtors.
 As such, they can block version with certain features or highly-customized Account logic can be implemented for Creditor-specific versions should this be required.
 
-The Account logic is upgradable, enabling existing accounts to make use of newly introduced features in a new Account version if they whichs.
+The Account logic is upgradable, enabling existing accounts to make use of newly introduced features in a new Account version if they wish.
 Upgrading Account logic is always on an opt-in basis, it can never be enforced by the Arcadia protocol.
 The Accounts can only be upgraded to a different version if both the Account owner and the Creditor (if a margin account is opened) accept the specific version.
 
@@ -994,15 +1019,6 @@ depending on the total proceeds of the auction relative to the debt and liquidat
     \item If the auction proceeds surpass the debt and the liquidation penalty cap,
     excess funds after penalty distribution are returned to the account's original owner.
 \end{enumerate}
-
-
-\begin{figure}
-    \label{fig:arcadia-logo}
-    \centering
-    \includegraphics[width=0.3\textwidth]{images/Logo-Arcadia.png}
-    \caption{Example of an image.}
-    \Description{Example of an image.}
-  \end{figure}
 
 \section{Summary}
 \label{sec:summary}
