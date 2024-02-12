@@ -20,11 +20,17 @@
 
 \renewcommand{\shortauthors}{Smets et al.}
 
-%% Add whitespace
+%% Add whitespace under header
 \begin{teaserfigure}
     \vspace{1em}
     \Description{Just used to add a whitespace over the length of the document.}
 \end{teaserfigure}
+
+%% Show page numbers
+\settopmatter{printfolios=true}
+
+%% Decrease whitespace under Figures
+\setlength\textfloatsep{\baselineskip}
 
 \begin{document}
 
@@ -1032,15 +1038,15 @@ Simultaneously, users benefit from the simplicity of managing on-chain portfolio
 
 In closing, we invite further exploration and collaboration to unlock the full potential of DeFi and contribute to the ongoing evolution of the finance system.
 
-\bibliographystyle{ACM-Reference-Format}
-\bibliography{main}
-
 \section*{Disclaimer}
 This document is intended for general informational purposes only and should not be construed as investment advice or
 a recommendation to buy or sell any investments.
 The views expressed herein represent the current opinions of the authors and are not presented on behalf of Arcadia Finance, Pragma Labs, or their affiliates.
 The opinions conveyed do not necessarily align with those of Arcadia Finance, Pragma Labs, their affiliates, or associated individuals,
 and they may be subject to change without prior updates.
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{main}
 
 \end{document}
 
