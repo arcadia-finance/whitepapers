@@ -53,7 +53,7 @@
 \section{Introduction} 
 \label{sec:introduction}
 This paper will explain the rationale behind the Arcadia Finance Technology Stack, what its main benefits are,
-and how it is technically implemented.
+and how it is technically implemented (the latter starts from Section \ref{sec:arcadia-financial-technology-stack} onwards).
 
 The Arcadia Financial Technology Stack is a set of on-chain, inter-linked financial protocols,
 centered around collateral management and margined positions.
@@ -148,15 +148,18 @@ were collateralized lending protocols.
 Lending protocols are not the only DeFi protocols that use collateralization to mitigate counterparty risks between different user-groups in some way or shape.
 Perpetual protocols, Prime brokerage protocols, option protocols etc. all require some or all users to deposit collateral.
 
-Most of these DeFi protocols require their users to over-collateralize their open positions.
-Meaning that the sum of all collateralized assets must always be bigger, with a certain safety margin, than the sum of all liabilities.
+Most of these DeFi protocols require their users to over-collateralize their open positions,
+meaning that the sum of all collateralized assets must always be larger, with a certain safety margin,
+than the sum of all liabilities.
 
 For example, if users want to borrow \$800 worth of token A via a certain lending protocol,
 they must first deposit and lock at least \$1000 worth of token B as collateral in said protocol.
 
-Most protocols have some kind of liquidation mechanism in place to prevent bad debt when the market would move against a user with an open position.
-Using the previous example, if token B drops in value compared to token A, say from \$1000 to \$900,
-the position of the user can be (fully or partially) liquidated.
+Additionally, most protocols have some kind of liquidation mechanism in place to prevent bad debt when the market moves against a user's position.
+Taking the previous example, if token B drops in value compared to token A, say from \$1000 to \$900,
+the user's position can be (fully or partially) liquidated.
+
+
 
 \subsection{Shortcomings and Inefficiencies}
 \label{subsec:shortcomings-and-inefficiencies}
@@ -632,7 +635,7 @@ Hence the available margin equals the Collateral Value as defined in Paragraph \
 (we will use the terms 'available margin' and 'Collateral Value' interchangeable).
 \begin{equation}
     \label{eq:available-margin}
-    am = v_{coll}^{num} = \frac{\sum_{i}{CF_{i}^{c} \cdot v^{usd}_{i}(a_{i})}}{r_{num\rightarrow usd}}\frac{S_{num}}{10^{18}}
+    am := v_{coll}^{num} = \frac{\sum_{i}{CF_{i}^{c} \cdot v^{usd}_{i}(a_{i})}}{r_{num\rightarrow usd}}\frac{S_{num}}{10^{18}}
 \end{equation}
 
 \subsubsection{Open position}
@@ -647,7 +650,7 @@ The used margin, $um$, is the total amount of Collateral Value locked by the Acc
 
 Since collateral in the Account must be held to cover both the open position and the minimum margin, the used margin can be found as:
 \begin{equation}
-    um = M_{min}^c + op^c
+    um := M_{min}^c + op^c
 \end{equation}
 
 \subsubsection{Free Margin}
@@ -656,7 +659,7 @@ The free margin, $fm$, is the remaining amount of Collateral Value that can be u
 The free margin can be found by subtracting the used margin from the available margin:
 \begin{equation}
     \label{eq:free-margin}
-    fm = am - um
+    fm := am - um
 \end{equation}
 
 \subsubsection{Initial Margin}
