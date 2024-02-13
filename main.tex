@@ -46,7 +46,7 @@
 
     Arcadia strives to enable higher capital efficiency for users, transparent risk assessment,
     faster go-to-market time for new protocols and an improved user experience.
-    All without compromising on security, self-custody and decentralisation.
+    All without compromising on security, self-custody and decentralization.
 \end{abstract}
 
 \keywords{Collateral Management, DeFi, Margin, EVM}
@@ -66,7 +66,7 @@ It consists out of three protocols, each with distinct responsibilities and perm
 \begin{itemize}
 \item The Arcadia Registry.
 \item The Arcadia Accounts.
-\item The Generalised Creditor.
+\item The Generalized Creditor.
 \end{itemize}
 
 To establish a shared understanding, we start this paper with Section \ref{sec:terminology},
@@ -79,9 +79,9 @@ Following this, Section \ref{sec:collateral-management-in-DeFi} goes into more d
 pinpointing current shortcomings and inefficiencies, and discusses how novel architectures might address these issues.
 
 In Section \ref{sec:arcadia-financial-technology-stack} we introduce our implementation of such a novel architecture:
-the Arcadia Financial Technology stack.
+the Arcadia Financial Technology Stack.
 
-Finally, each of the underlying protocols of the Arcadia Financial Technology stack are discussed in detail 
+Finally, each of the underlying protocols of the Arcadia Financial Technology Stack are discussed in detail 
 in Sections \ref{sec:arcadia-registry}, \ref{sec:arcadia-accounts} and \ref{sec:arcadia-creditor}.
 
 \section{Terminology}
@@ -118,7 +118,7 @@ With the rise of complex financial instruments and the globalization of markets,
 Collateral is now used to secure a wide range of financial instruments, including derivatives trading, margin accounts,
 and other sophisticated financial contracts.
 
-The digitalisation of the financial system greatly improved the efficiency of the exchange and settlement of collateral.
+The digitalization of the financial system greatly improved the efficiency of the exchange and settlement of collateral.
 Reporting, margining and reconciliation processes could be executed on a daily basis instead of on a weekly or even monthly basis \cite{simmons2019collateral}.
 
 The emergence of blockchain technology and decentralized finance (DeFi) led to a new wave of innovation for collateral management.
@@ -129,7 +129,7 @@ Blockchain has some excellent properties with regards to collateral management:
     \item Atomic execution of transactions avoids expensive reconciliation processes and eliminates settlement risk.
     \item Atomic execution of transactions enables optimistic execution of transactions (e.g. flash loans),
     which can greatly improve processes such as refinancing liabilities or even enable completely new financial use-cases.
-    \item The permissionless nature of blockchain and Dapps (Decentralised Applications),
+    \item The permissionless nature of blockchain and Dapps (Decentralized Applications),
     combined with a shared state between all those applications,
     make different financial applications and assets composable and inter-operable by default.
 \end{itemize}
@@ -152,7 +152,7 @@ central banks and the regulatory bodies themselves.
 This might paradoxically cement even greater systemic risks into the financial system.
 
 In 2022 DeFi experienced it's own financial crisis.
-In a few months time, many of the ecosystem's key (albeit mostly centralised) players collapsed, and removed all liquid with them.
+In a few months time, many of the ecosystem's key (albeit mostly centralized) players collapsed, and removed all liquid with them.
 Again bad collateral management, rehypothecation of collateral, opaque protocol mechanisms,
 and outright fraud with collateralized assets were at the root of the problem.
 
@@ -169,7 +169,7 @@ DeFi protocols should focus more on collateralization, and less on Complex token
 
 \subsection{The Future}
 The over-collateralized DeFi protocols however, operated remarkably well during the aforementioned crisis, even better than their traditional counterparts.
-This is well illustrated by some of the collapsed centralised entities, active in the space until 2022, that had both on- and off-chain liabilities.
+This is well illustrated by some of the collapsed centralized entities, active in the space until 2022, that had both on- and off-chain liabilities.
 All on-chain Creditors were repaid in a timely and orderly fashion, as enforced by their smart contracts.
 While the lawsuits for the many off-chain Creditors are, at the time of writing this paper, still ongoing (and probably will be for many years).
 
@@ -218,7 +218,7 @@ While the nature of the financial contracts may be very different for each of th
 \end{itemize}
 
 Pricing of assets, management of assets and liquidation logic is complex, error prone and most mistakes easily lead to severe user losses.
-Today all protocols implement these redundantly, even for new versions of the same protocol.
+Today all protocols implement these redundant, even for new versions of the same protocol.
 
 Not only is this very costly in development and auditing time, the core logic is rewritten and re-deployed time and time again,
 and with each new deployment new bugs can be introduced.
@@ -239,7 +239,7 @@ Having the ability to use a portfolio of assets as collateral improves the capit
     \item Debtors can use negatively correlated assets to hedge positions and limit liquidation risks.
 \end{itemize}
 
-Having a global shared state across applications and assets is often cited as one of the key advantages of blockchain over centralised financial infrastructures\cite{schar2021decentralized}.
+Having a global shared state across applications and assets is often cited as one of the key advantages of blockchain over centralized financial infrastructures\cite{schar2021decentralized}.
 This should open up a whole new solution space for Debtors to manage collateralized positions,
 and might even enable a single Debtor to share its margin between non-trusting Creditors without intermediaries.
 Hence it is quite ironic that traditional brokers and clearing houses offer more advanced capabilities for cross- and portfolio-margined positions, compared to the state-of-the-art DeFi protocol.
@@ -257,14 +257,14 @@ Fragmentation of assets not only results in capital inefficiencies, it also cont
 \subsubsection{End user complexity}
 \label{subsubsec:end-user-complexity}
 
-End-user do not "want" to manage collateral, they want to optimize portfolio's to achieve a certain objective (e.g. increase yield, delta hedging, diversify exposure to different protocols...).
+End-user do not "want" to manage collateral, they want to optimize portfolios to achieve a certain objective (e.g. increase yield, delta hedging, diversify exposure to different protocols...).
 Collateral management is a means to an end, it is not an activity most users enjoy doing.
 
 End-user adoption will only increase outside of a niche bubble of tech enthusiasts if the technical complexities around collateral management are be abstracted away.
-Important note, abstracting away technical complexities should never come at a cost of hiding risks or relying on centralised and custodial solutions (as is to often the case).
+Important note, abstracting away technical complexities should never come at a cost of hiding risks or relying on centralized and custodial solutions (as is to often the case).
 
 As mentioned in the previous Section \ref{subsubsec:fragmented-collateral}, the bad user experience is partly due to the fragmentation of assets and positions.
-Rebalancing portfolio's often require multiple transactions per asset and per position.
+Rebalancing portfolios often require multiple transactions per asset and per position.
 
 Today the user has to execute multiple sequential transactions per asset, instead a single transaction that rebalances the complete portfolio.
 Let's take as example a user that wants to earn yield from his collateralized assets and get exposure to Liquid Staking Tokens (LSTs).
@@ -281,16 +281,16 @@ With Account abstraction all these different action can be bundled in a single a
 
 A second abstraction is to let users define what they want, and provide them with the information (the calldata) how to do it.
 Since most collateral management actions require interactions with multiple assets/protocols,
-this abstraction can only be achieved after portfolio's as a whole can be managed with a single atomic transaction.
+this abstraction can only be achieved after portfolios as a whole can be managed with a single atomic transaction.
 
 At the time of writing this paper, the required infrastructure to enable both abstractions, is heavily debated within the broader ecosystem and multiple proposals are launched to standardize the infrastructure.
 Most notable are the proposals for Account Abstraction (e.g. EIP-3074 and EIP-4337) and for Intent based architectures (e.g. EIP-7521)
 
-Both abstractions are already successfully applied (albeit in a somewhat non-standardized form) within DeFi by Decentralised Exchanges, NFT-marketplaces and their aggregators.
+Both abstractions are already successfully applied (albeit in a somewhat non-standardized form) within DeFi by Decentralized Exchanges, NFT-marketplaces and their aggregators.
 
 \subsection{New Architectures}
 \label{subsec:new-architectures}
-Over the course of 2023, a number of interesting solutions were proposed by different protocols and stakeholders on how to build more robust decentralised financial systems.
+Over the course of 2023, a number of interesting solutions were proposed by different protocols and stakeholders on how to build more robust decentralized financial systems.
 Notable recent papers are from Uniswap V4\cite{adams2023uniswap}, Morpho\cite{gontier2023morpho} and Euler\cite{euler2023protocols}.
 
 All mention similar concepts as the distinction between product and protocol, modularization of the protocol,
@@ -303,7 +303,7 @@ With the lowest most core component the slowest moving, while the upper user fac
 
 A good practical example is uniswap V4,
 where Uniswap Labs implements the underlying core mathematical logic for CLAMMs (Concentrated Liquidity Automated Market Makers).
-Other teams can build in a permissionless manner on top of the Uniswap V4 protocol and develop feature rich and fast innovating new DEXs,
+Other teams can build in a permissionless manner on top of the Uniswap V4 protocol and develop feature rich and fast innovating new DEXs (Decentralized Exchanges),
 without the need and risks of redundantly implementing the complex maths related to concentrated liquidity.
 
 Also over-collateralized protocols would benefit from a similar architecture.
@@ -311,18 +311,18 @@ A shared standardized and permissionless layer with battle tested logic for coll
 on top of which Creditors build their application specific financial contracts.
 And where fast moving end-user facing features are developed independently of the core logic.
 
-This is exactly what we are building with the Arcadia Financial Technology stack.
+This is exactly what we are building with the Arcadia Financial Technology Stack.
 
 \section{The Arcadia Financial Technology Stack}
 \label{sec:arcadia-financial-technology-stack}
 
-The Arcadia Financial Technology stack, illustrated in Figure \ref{fig:arcadia-financial-technology-stack},
+The Arcadia Financial Technology Stack, illustrated in Figure \ref{fig:arcadia-financial-technology-stack},
 is our answer to resolve the inefficiencies outlined in Paragraph \ref{subsec:inefficiencies}.
 It is implemented for the Ethereum Virtual Machine (EVM) and consists out of three protocols:
 \begin{itemize}
     \item The Arcadia Registry.
     \item The Arcadia Accounts.
-    \item The Generalised Creditor.
+    \item The Generalized Creditor.
 \end{itemize}
 
 \begin{figure}
@@ -344,7 +344,7 @@ Arcadia Accounts enable an unprecedented user experience, while not compromising
 
 Arcadia Accounts are further customable to suit specific needs of certain users or Creditors.
 
-Lastly, the Generalised Creditor can be any protocol or financial contract where one or more users have liabilities, or can have liabilities at some point.
+Lastly, the Generalized Creditor can be any protocol or financial contract where one or more users have liabilities, or can have liabilities at some point.
 The protocol has to implement a single interface to become interoperable with the rest Arcadia Financial stack.
 
 The protocols devs only have to implement their creditor specific smart contracts,
@@ -383,7 +383,7 @@ Working with this modular architecture has a number of advantages:
 \end{itemize}
 
 There are two main categories of modules: Oracle Modules and Asset Modules.
-And Asset Modules can be further divided in two sub-categories: Primary Asset Modules and Derived Asset Modules.
+Asset Modules can be further divided in two sub-categories: Primary Asset Modules and Derived Asset Modules.
 An overview of the different modules, and their relations are illustrated in Figure \ref{fig:arcadia-registry}.
 
 \begin{figure}
@@ -570,8 +570,7 @@ The minimum margin can not be used to back liabilities and can be seen as an amo
 
 \section{Arcadia Accounts}
 \label{sec:arcadia-accounts}
-Arcadia Accounts are the main moat of the protocol.
-Accounts serve as an advanced user-controlled smart wallet from which the owner can perform a multitude of actions: deposit and withdraw assets,
+Arcadia Accounts serve as an advanced user-controlled smart wallet from which the owner can perform a multitude of actions: deposit and withdraw assets,
 use the assets to interact with other DeFi protocols, open a margin account with a Creditor, open positions with the Creditor,
 change from Creditor or transfer the Account to another owner.
 
@@ -617,7 +616,7 @@ Users that still want to have isolated positions can still do so by deploying mu
 
 Portfolio margin is similar to cross-margin in that all assets bought on margin, share the same collateral.
 But unlike with cross-margin, there is no distinction between realized and unrealized profits.
-Wins of one position offset losses of other positions, independent if they are realised or not,
+Wins of one position offset losses of other positions, independent if they are realized or not,
 making Portfolio margin even more capital efficient.
 
 This is because Accounts do not make a distinction between the assets initially deposited as collateral and the assets bought on margin.
@@ -775,7 +774,7 @@ When users upgrade their accounts, they don't have to migrate any assets or clos
 The owner of the Account can deposit and withdraw a multitude of collateral assets.
 The list of assets that can be deposited in Arcadia Accounts is continuously being expanded, thanks to the modular architecture of the Arcadia Registry (see Paragraph \ref{subsec:modular-pricing-logic}).
 
-By allowing multiple assets to be deposited within a single Account, users, institutions and protocols can build diversified portfolio's and complex strategies.
+By allowing multiple assets to be deposited within a single Account, users, institutions and protocols can build diversified portfolios and complex strategies.
 
 That does however not mean that Creditors have to be exposed to an ever increasing list of assets.
 Creditors can limit which assets are allowed as collateral in Accounts of their Debtors,
@@ -827,7 +826,7 @@ We will list a few examples how flash actions from an Arcadia Account can be use
 And keep in mind that all of these actions can be done, even if the assets are used to secure liabilities.
 
 \begin{itemize}
-    \item Rebalance whole portfolio's, swapping a portfolio of n different assets directly to a new portfolio of m different assets.
+    \item Rebalance whole portfolios, swapping a portfolio of n different assets directly to a new portfolio of m different assets.
     \item Refinance liabilities (change to a different Creditors), without the need to sell any collateral.
     \item Stake or provide liquidity on approved DeFi protocols.
     External protocols used in this context will need to provide a receipt token which must be allowed as collateral as well within the Arcadia protocol.
@@ -850,7 +849,7 @@ Instead the Arcadia Accounts are "Account Abstraction ready".
 Still some key features of account abstraction are implemented in a non-standardized form.
 Most notable the ability to bundle multiple actions, and the ability to set an entry point that can do operations on behalf of the account owner.
 
-The Arcadia Accounts are implemented in such a way that if at some point account abstraction is standardized, they can be easily modify to adhere the the agreed upon standard.
+The Arcadia Accounts are implemented in such a way that if at some point account abstraction is standardized, they can be easily modified to adhere to the agreed upon standard.
 Even users with existing accounts can (if they want) upgrade their Accounts to this new version with full Account Abstraction, as explained in Paragraph \ref{subsec:upgradeability}.
 
 \subsection{Intent ready}
@@ -890,7 +889,7 @@ owned by each of the Debtors.
 Examples of Creditors can be implementations of peer-to-peer lending protocols, peer-to-pool lending, perpetual futures contracts, options contracts...
 An Arcadia Creditor can be implemented for basically every financial contract or protocol where a party has, or can have, liabilities.
 
-\subsection{Generalised Creditor}
+\subsection{Generalized Creditor}
 Since the Arcadia Financial stack is open and permissionless,
 every financial contract or protocol with one or more Debtors,
 can build on top of the Arcadia financial stack.
@@ -966,7 +965,6 @@ The dTokens tokens are not transferable.
 The interests on all debt are automatically and continuously accruing via the ERC-4626 standard.
 
 \subsubsection{Tranches}
-% Add image illustrating Tranches?
 Each lending pool consists of one or more risk Tranches.
 A Tranche is a slice of the total liquidity in the pool, with a different risk-reward profile compared to other Tranches.
 
@@ -991,6 +989,14 @@ Each Tranche will have its own ERC-4626 token.
 
 The Lending Pool will do the accounting how much liquidity is owned by each Tranche,
 while the tranches in turn will do the accounting of how much of that liquidity is owned by their respective LPs.
+A schematic of an Arcadia Lending Pool with Tranches is illustrated in Figure \ref{fig:tranches}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.45\textwidth]{images/Tranches.png}
+    \caption{Arcadia Lending Pool with two Tranches. \label{fig:tranches}}
+    \Description{A schematic of the Arcadia Lending Pool, two Tranches and their LPs.}
+\end{figure}
 
 Yield earned through interests and liquidation fees is divided over the different Tranches
 (more Junior tranches will earns a bigger relative share of the yield).
@@ -998,7 +1004,7 @@ And via the ERC-4626 standard the yield is further pro-rata distributed to the T
 
 \subsubsection{Liquidations}
 \label{subsubsec:liquidations}
-Liquidation within Arcadia's system is conducted via a three-step process using a Gradual Dutch Auction.
+Liquidations for Arcadia Lending Pool are conducted via a three-step process using a Gradual Dutch Auction.
 
 Initially, anyone can initiate the liquidation of an account that falls below the liquidatable health threshold,
 receiving a reward for doing so.
@@ -1016,7 +1022,7 @@ Anyone can end the auction, and also receives a reward for doing so, if any if t
 \end{itemize}
 
 After the auction is successfully ended, the liquidation is settled.
-There are three different scenarios how a liquidation can be settled,
+There are three different scenarios, as illustrated in Figure \ref{fig:liquidation-settlement}, how a liquidation can be settled,
 depending on the total proceeds of the auction relative to the debt and liquidation penalties:
 \begin{enumerate}
     \item If the auction proceeds are less than the debt,
@@ -1026,6 +1032,13 @@ depending on the total proceeds of the auction relative to the debt and liquidat
     \item If the auction proceeds surpass the debt and the liquidation penalty cap,
     excess funds after penalty distribution are returned to the account's original owner.
 \end{enumerate}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.45\textwidth]{images/Liquidation-Settlement.png}
+    \caption{Liquidation Settlement scenarios. \label{fig:liquidation-settlement}}
+    \Description{An illustration of the three different Liquidation Settlement scenarios.}
+\end{figure}
 
 \section{Summary}
 \label{sec:summary}
