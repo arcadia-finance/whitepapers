@@ -3,6 +3,7 @@
 %% packages
 \usepackage{graphicx}
 \usepackage{lipsum}
+\usepackage{url}
 
 \title{Arcadia Finance [Draft]}
 \subtitle{November 2023}
@@ -53,8 +54,8 @@ They facilitate non-trusting peers to close financial contracts without the need
 It consists out of three protocols, each with distinct responsibilities and permissions:
 \begin{itemize}
 \item The Arcadia Registry.
-\item Arcadia Accounts.
-\item A Creditor contract.
+\item The Arcadia Accounts.
+\item The Generalised Creditor.
 \end{itemize}
 
 \section{Terminology}
@@ -101,7 +102,7 @@ Blockchain has some excellent properties with regards to collateral management:
 \begin{itemize}
     \item With it's immutable and transparent ledger, collateral can be audited 24/7.
     \item Smart contracts enforce margin requirements real time on a 24/7 continuous basis.
-    \item The atomic execution of transactions avoid expensive reconciliation processes.
+    \item The atomic execution of transactions avoid expensive reconciliation processes and eliminates settlement risk.
     \item The atomic execution also enables optimistic execution of transactions (e.g. flash loans) which can greatly improve processes such as refinancing loans or even enable completely new financial use-cases.
     \item The permissionless nature of blockchain and Dapps (Decentralised Applications), combined with a shared state between all those applications, make different financial applications and assets composable and inter-operable by default.
 \end{itemize}
@@ -144,13 +145,14 @@ While the lawsuits for the many off-chain Creditors are still ongoing (and proba
 
 It is for these types of crises that liabilities are secured in the first place.
 These events further strengthened our vision that blockchain-based protocols have the potential to become the dominant infrastructure for collateral management.
-But before we get there, a number of Inefficiencies of in current DeFi protocols must be overcome, as we will discuss in the next Section.
+But before we get there, a number of Inefficiencies of current DeFi protocols must be overcome, as we will discuss in Section \ref{subsec:inefficiencies}.
 
 \section{Collateral Management in DeFi}
 \subsection{General Principles}
 % To Do, use picture, keep it high level
 
 \subsection{Inefficiencies}
+\label{subsec:inefficiencies}
 
 In the next sections we will highlight a number of inefficiencies,
 which need to be overcome before DeFi can be broadly adopted as the go-to infrastructure for collateral management.
@@ -265,54 +267,48 @@ We believe that taking a collateral management first approach results in overall
 
 the Arcadia Financial Technology Stack is implemented for the Ethereum Virtual Machine (EVM) and consists out of three protocols:
 \begin{itemize}
-\item The Arcadia Registry.
-\item Arcadia Accounts.
-\item A Creditor contract.
+    \item The Arcadia Registry.
+    \item The Arcadia Accounts.
+    \item The Generalised Creditor.
 \end{itemize}
-
-General overview of the protocols, design requirements, permissions.
-- General philosophy: creditor is the maker, debtor is the taker.
-- Append only, no overwriting 
-
-\lipsum[2]
 
 \section{Arcadia Registry}
 \label{sec:arcadia-registry}
 
-More details on requirements + technical implementation.
-
-The registry is a modular and append-only registry for pricing logic and risk data of on-chain assets.
-Given the importance and nature of collateral, infrastructure to price collateral is of key importance that collateral should be:
-- Should be safe
-- Should be gas efficient
-- Should be liquid
-- Should be Should be resistant to price manipulation via flash loans
-- The size of the liability it backs, should be small compared to the liquid market size.
-
-\subsection{Many assets to one pricing}
-Creditor sets "routing".
+The Arcadia Registry is non opinionated on-chain infrastructure with two main functionalities:
+\begin{enumerate}
+    \item Standardize pricing logic to denominate a portfolio of on-chain assets in a given numeraire (unit of account).
+    \item Standardize logic to store, manage and process asset related risk parameters/variables.
+\end{enumerate}
 
 \subsection{Modular pricing logic}
-In the Arcadia protocol, there is not a single contract responsible for pricing assets, instead we work with a single Registry and multiple Pricing Modules.
-Each Pricing Module is a separate smart contract with the pricing logic for specific Oracle implementations or Asset types.
-The Registry keeps mappings per Creditor of which Module to use to price a certain asset.
+\label{subsec:modular-pricing-logic}
+The Arcadia Registry is not a monolithic smart contract containing all logic.
+It consists of a main coordinating smart contract (also referred to as The Registry) and multiple Modules.
+
+Each Module is a separate smart contract with the pricing logic for specific Oracle implementations or Asset types.
+The Registry keeps mappings per Creditor of which Module to use for a certain asset.
 
 It is the Creditor itself that sets these mappings, the Creditor decides which Modules to use for each asset they allow their Debtors to use as collateral.
 Different Creditors can use different Modules to price the same asset, or a Creditor can choose to not allow certain assets at all.
 
-Modules can only be appended to the protocol, not removed or overwritten.
-This ensures that Pricing logic is immutable, but it still gives flexibility to add new assets, or implement more efficient Pricing logic.
+Modules can only be appended to the Registry, not removed or overwritten.
+This ensures that Pricing logic is immutable, but it still gives flexibility to add new assets, or implement more efficient Pricing logic over time.
 
-There are two categories of modules: Oracle Modules and Asset Modules.
+Working with this modular architecture has a number of advantages:
+\begin{itemize}
+    \item Modules are re-usable by different Creditors, instead of redundant monolithic Pricing Contracts per Creditor, battle tested Pricing/Risk logic can be reused.
+    \item Different Modules can call each other recursively, creating Pricing/Risk logic that is as composable as tokenized assets.
+    \item Logic for new assets, or even asset types, can be added without the need of upgradable Proxy contracts and their inherent trust assumptions.
+\end{itemize}
 
-\subsubsection{Oracle Modules}
-Each different oracle implementation (e.g. Chainlink oracles, Pyth oracles, Uniswap TWAPs...) should have its own Oracle Module.
-The Oracle Module has two main functionalities.
-Firstly, it returns the oracle-rate in a standardized format.
-And secondly it checks if the oracles perform as intended.
-If not, non-functioning oracles are decommissioned.
+There are two main categories of modules: Oracle Modules and Asset Modules.
 
-Each oracle has a quote-asset and a base-asset, the oracle-rate $R_{oracle}$ reflects how much units of the quote-asset are required to buy 1 unit of the base-asset.
+\subsection{Oracle Modules}
+The Oracle Module implements the logic to convert oracle-rate of different oracle technologies into a standardized format.
+Each different oracle implementation (e.g. Chainlink oracles, Pyth oracles, Uniswap TWAPs...) has its own Oracle Module.
+
+Anh oracle has a quote-asset and a base-asset, the oracle-rate $R_{oracle}$ reflects how much tokes of the quote-asset are required to buy 1 token of the base-asset.
 The precision $S_{oracle}$ of oracles is variable and can even be a binary fixed-point number.
 Since all pricing logic within the Arcadia Protocol uses fixed-point numbers with 18 decimals precision,
 a correction from the oracle precision to a precision of 18 decimals is required for the standardized oracle rate $R_{ba\rightarrow qa}$, returned by the Oracle Module.
@@ -321,43 +317,148 @@ a correction from the oracle precision to a precision of 18 decimals is required
     R_{ba\rightarrow qa} = R_{oracle} \frac{10^{18}}{S_{oracle}}
 \end{equation}
 
-\subsubsection{Asset Modules}
-Just as each oracle implementation should have its own oracle Module, each asset type should have it's own Asset Module.
-Each Asset Module has three main functionalities:
-\begin{itemize}
-    \item Implement the pricing logic to calculate the USD value of an asset. 
-    \item Process Deposits and Withdrawals.
-    \item Manage Asset specific risk parameters.
-\end{itemize}
+\subsection{Asset Modules}
+Just as Oracle Modules implement the logic to return oracle-rates in a standardized format, Asset Modules will return Asset values in a standardized format.
+And just as each oracle implementation has its own oracle Module, each asset type has it's own Asset Module.
+
+Next to pricing logic, Asset Modules also store and manage asset specific risk parameters, which we will discuss in more detail in Paragraph \ref{subsec:creditor-specific-cisk-parameters}.
 
 Asset Modules can be further divided into two distinct groups: Primary Asset Modules and Derived Asset Modules.
 
 \subsubsection{Primary Asset Modules}
 Primary assets are defined as assets that are not composed of other assets.
-Primary Assets must be priced using one or more on-chain oracles, for which the values are fetched via the Oracle Modules.
+Primary Assets must be priced using one or more on-chain oracles, for which the rates $R_{ba\rightarrow qa}$ are fetched from the Oracle Modules via the Registry.
 
-The Registry will enforce that each asset of a Primary asset is priced in USD with 18 decimals precision.
-Since the asset amount, $A_{asset}$, can have a variable precision $S_{asset}$, a correction is again applied to bring the usd-value of the asset $V_{asset}^{USD}$ to 18 decimals precision.
+Each asset of a Primary asset is priced in USD with 18 decimals precision.
+Since the asset amount, $A_{asset}$ can have a variable precision (number of decimals), a correction $S_{asset}$ is again applied to bring the usd-value of the asset $V_{asset}^{usd}$ to 18 decimals precision.
 
-Take as example 
+Depending of the direction of the oracle, the value of the Primary Asset is calculated different.
+When the asset is the base-asset of the oracle:
+\begin{equation}
+    V^{usd}(A_{asset}) = R_{asset\rightarrow usd} \frac{A_{asset}}{S_{asset}}
+\end{equation}
+
+When the asset is the quote-asset of the oracle:
+\begin{equation}
+    V^{usd}(A_{asset}) = \frac{1}{R_{usd\rightarrow asset}} \frac{A_{asset}}{S_{asset}}
+\end{equation}
+
+For some assets, there might not be a direct oracle to USD.
+For these assets multiple oracles can be chained together:
+\begin{equation}
+    V^{usd}(A_{asset}) = R_{asset\rightarrow x} R_{x\rightarrow usd} \frac{A_{asset}}{S_{asset}}
+\end{equation}
+\begin{equation}
+    V^{usd}(A_{asset}) = \frac{R_{y\rightarrow usd}}{R_{y\rightarrow asset}} \frac{A_{asset}}{S_{asset}}
+\end{equation}
+
 \subsubsection{Derived Asset Modules}
+Derived assets are defined as assets that are composed of one or more underlying assets (which can be primary assets or other derived assets).
+Examples of derived assets are liquidity positions of AMMs, staked assets, yield bearing tokens.
 
-\subsection{Risk Mitigation}
-It is impossible to guarantee that every module will always be bug free.
-A protocol where new pricing modules can be appended, but that relies on the assumption that all bugs will be caught before deployment of each module, is bound to fail.
-A bug in a single module should not lead to the end of the entire protocol and to all protocols build on top of it.
+The derived Asset Modules will calculate the usd-value in three steps.
+It will first calculate the amounts of the underlying assets $A_{u}$, given the amount of the asset to be priced $A_{asset}$.
+\begin{equation}
+    \label{eq:underlying-asset-amounts}
+    A_{u} = f_{u}(A_{asset})
+\end{equation}
+Where $f_{u}(A)$ is a flashloan-resistant and protocol specific function.
+For example for a Uniswap V2 Liquidity Positions it can be derived from the reserves of the pool,
+or for ERC4626 tokens it can be calculated by calling \texttt{convertToAssets(shares)}.
 
-The probability that bugs might occur in a module at some point should be taken into account in the protocol design.
-This consists of three steps: impact mitigation, impact isolation and module replacement.
+In a second step the Derived Asset Module will recursively fetch for the usd-value of each of the underlying assets $V^{usd}(A_{u})$ from the Registry,
+using the underlying asset amounts $A_{u}$ from Equation \ref{eq:underlying-asset-amounts}.
+\begin{equation}
+    V^{usd}(A_{u}) = V^{usd}(f_{u}(A_{asset}))
+\end{equation}
+The underlying assets of a derived assets can be derived assets themselves (e.g. staked LP tokens, or liquidity positions of AMMs where one of the tokens is a yield bearing asset).
+In this case the underlying asset will in turn fetch the usd-values of their underlying asset(s).
+The stop conditions of the recursion are when the underlying asset is a Primary asset, or if a maximum recursion depth (set by the Creditor) is reached.
+By working with modular and recursive Asset Modules, the pricing logic of the Registry fully captures the benefits of composability withing DeFi.
 
-Risk parameters should be granular enough to be able to capture the smart contract risk for novel modules.
-Different Creditors should be able to decide when they enable their debtors to use assets priced by a certain module as collateral.
-And when they decide to enable the module, set upper boundaries to the overall exposure to said modules.
-As such, if one module is faulty, it should be possible to mitigate it's impact.
+Lastly, the total usd value of the asset, $V^{usd}(A_{asset})$, is calculated as the sum of the usd values of its underlying assets.
+Since all underlying assets are valued with 18 decimals precision, no additional precision correction is required.
+\begin{equation}
+    V^{usd}(A_{asset}) = \sum_{u}{V^{usd}(A_{u})} = \sum_{u}{V^{usd}(f_{u}(A_{asset}))}
+\end{equation}
 
-After a bug is identified
+\subsection{Portfolio Pricing}
+Section \ref{subsec:modular-pricing-logic} explains how the Registry can calculate the value of assets in usd.
+Building further on this logic, the Registry can price any combination of assets in any numeraire (the asset used as unit of account).
 
+Given a portfolio $P$ consisting of assets with amount $A_{i}$, the value of the portfolio denominated in a certain numeraire $V_{spot}^{num}(P)$ with precision $S_{num}$ is given as:
+\begin{equation}
+    \label{eq:portfolio-value-mtm}
+    V_{spot}^{num}(P) = \frac{\sum_{i}{V^{usd}(A_{i})}}{R_{num\rightarrow usd}}\frac{S_{num}}{10^{18}}
+\end{equation}
 
+The result of equation \ref{eq:portfolio-value-mtm} is the spot or MtM (mark-to-market) value of the portfolio.
+Next to the MtM value of the portfolio, the Registry can also calculate risk adjusted portfolios value,
+where assets are discounted with a asset-numeraire specific risk factor $RF_{i}^{C}$, set by each Creditor.
+The risk adjusted portfolio value $V_{risk}^{num}(P)$ is then given as:
+\begin{equation}
+    V_{risk}^{num}(P) = \frac{\sum_{i}{RF_{i}^{C} \cdot V^{usd}(A_{i})}}{R_{num\rightarrow usd}}\frac{S_{num}}{10^{18}}
+\end{equation}
+
+\subsection{Creditor Specific Risk Parameters}
+\label{subsec:creditor-specific-cisk-parameters}
+Each Creditor can set a number of risk parameters in the Registry to protect themselves against different risks.
+These risk parameters are taking into account when depositing assets, or when risk-adjusted portfolio values are calculated.
+
+The risk parameters can be asset specific, protocol specific or a single value per creditor.
+
+\subsubsection{Collateral, Liquidation and Risk Factors}
+As is described in detail in Paragraph \ref{subsec:margin-accounts}, collateral factors and liquidation factors are used to discount asset values to account for market, liquidity and smart-contract risks.
+
+Each asset $i$ that can be priced by the Registry has a Creditor specific collateral factor $CF_{i}^{C}$ and liquidation $LF_{i}^{C}$ factor.
+For Primary Assets, the factors are set directly by Creditor.
+
+For Derived Assets, the risk factors are a function of the risk factors of its underlying assets $u$, and optionally an additional protocol specific risk factor $RF_{p}^{C}$,
+to account for the additional complexity smart contract risk of derived assets:
+\begin{equation}
+    CF_{i}^{C} = f(\forall CF_{u}^{C}, RF_{p}^{C})
+\end{equation}
+
+The relation between the risk factor and the risk factors of the underlying assets will depend on the specific nature ot the derived asset.
+It can e.g. be the minimum of each risk factor of the underlying assets, a weighted average or something else.
+
+For derived assets with a single underlying asset the risk factor becomes straightforward and is just the multiplication of the risk factor of the underlying asset and the protocol specific risk factor.
+As an example, take a protocol ($p$) with yield bearing assets, which has an $ETH$ and a $USDC$ vault.
+The collateral factors of the corresponding $pETH$ and $pUSDC$ tokens are:
+\begin{equation}
+    CF_{pETH}^{C} = RF_{p}^{C} \cdot CF_{ETH}^{C}
+\end{equation}
+\begin{equation}
+    CF_{pUSDC}^{C} = RF_{p}^{C} \cdot CF_{USDC}^{C}
+\end{equation}
+
+\subsubsection{Maximum Exposure}
+The maximum exposures give Creditors a tool to set an upper boundary against the overall exposure they can have against certain primary assets or protocols.
+Creditors can even choose to not be exposed to certain primary assets or protocols (via derived assets) by setting the corresponding maximum exposure to 0.
+
+There is again a difference how the maximum exposure is defined for primary assets and for derived assets.
+
+For primary assets, the maximum exposure is defined per primary asset and per creditor.
+It limits the total amount (in the unit of the underlying asset) of exposure that a single Creditor can have against the primary asset.
+As such assets with low on-chain liquidity or small market caps can be used as collateral,
+while market manipulation risks, such as the Mango Market Exploit\cite{coindeskDeFiExchange} can be mitigated.
+
+The total exposure of a primary asset takes into account both direct deposits of the primary asset, as indirect exposures via derived assets.
+If a maximum exposure is reached, no additional amount of the primary asset can be deposited, nor can any derived asset be deposited that is composed of the primary asset.
+
+For derived assets, there are two mechanisms that provide the Creditor to an upper bound for certain risks.
+As mentioned before, none of the primary assets of which the derived asset is composed can exceed their maximum exposure to mitigate risks of market manipulation and low liquidity.
+Secondly, each creditor can set an upper limit to the total USD exposure of all derived assets of a certain protocol (e.g. the sum of all liquidity position of Uniswap V2).
+As such the Creditor can limit potential losses due to exploits in the protocol.
+
+\subsubsection{Minimum Margin}
+Liquidating unhealthy positions has a considerable gas cost, which liquidators take into account when deciding to liquidate a position or not.
+This gas cost is independent of the size of the open position.
+Not taking into account the size independent gas cost could lead to very small positions that are never profitable to liquidate.
+Or even worse, liquidations that are successfully started, but never profitable to end.
+
+To avoid both problems, accounts must have a Creditor specific minimum value of collateral, the minimum margin $MM^{C}$, before they can open a position.
+The minimum margin can not be used to back liabilities and can be seen as an amount of collateral that is locked to at least cover gas costs of Liquidators.
 
 \section{Arcadia Accounts}
 \label{sec:arcadia-accounts}
@@ -376,6 +477,7 @@ Other benefits are that Accounts can be tracked and monitored trough existing De
 \subsection{Token Standard Agnostic}
 
 \subsection{Margin Accounts}
+\label{subsec:margin-accounts}
 
 \subsection{Account Abstraction ready}
 
