@@ -811,7 +811,7 @@ This allows the Account Owner to temporary bring the Account in an undercollater
 Since if the Account is not brought back into a healthy state during the transaction, the final health check fails and thanks to atomicity the whole transaction fails.
 
 This gives Account Owners unprecedented flexibility to manage assets and liabilities.
-In a fully permissionless way they can chain the following together (= do a flash action):
+In a fully permissionless way they can chain the following actions together (= do a flash action):
 \begin{itemize}
     \item A margin Account can be opened for a new Creditor, if the new Creditor is approved by the Account Owner.
     \item The Creditor can execute arbitrary logic (e.g. give a flashloan).
@@ -850,7 +850,7 @@ Instead the Arcadia Accounts are "Account Abstraction ready".
 Still some key features of account abstraction are implemented in a non-standardized form.
 Most notable the ability to bundle multiple actions, and the ability to set an entry point that can do operations on behalf of the account owner.
 
-The Arcadia Accounts are implemented in such a way that if at some point account abstraction is implemented, they can be easily modify to adhere the the agreed upon standard.
+The Arcadia Accounts are implemented in such a way that if at some point account abstraction is standardized, they can be easily modify to adhere the the agreed upon standard.
 Even users with existing accounts can (if they want) upgrade their Accounts to this new version with full Account Abstraction, as explained in Paragraph \ref{subsec:upgradeability}.
 
 \subsection{Intent ready}
@@ -870,7 +870,7 @@ Tis would again require an upgrade of the Accounts logic as described in Paragra
 Account owners can appoint one or more Asset Managers, including external smart contracts, which can take actions on behave of the Account owner.
 
 The Asset Manager is a fully trusted role, and should be used with care.
-No Account owner should set an Asset Manager which he doesn’t trust with their funds?
+No Account owner should set an Asset Manager which he doesn't trust with their funds.
 
 The asset manager has multiple use-cases, a few examples are (non exhaustive list):
 \begin{itemize}
@@ -926,10 +926,10 @@ In short, it protects the Creditor against market and other risks, and ensures t
 
 \subsubsection{Allowed Account Versions}
 a Creditor can set one or more Account versions as approved,
-meaning that any Account on an approved version is able to take liabilities from the Creditor.
+meaning that any Account with an approved version is able to take liabilities from the Creditor.
 
 \subsubsection{Liquidations}
-Every Creditor must ensure a suitable liquidation flow is foreseen in case an Account's health state drops to liquidatable,
+Every Creditor must ensure that a suitable liquidation flow is foreseen in case an Account's health state drops to the liquidatable state,
 as explained in Paragraph \ref{subsubsec:margin-account-health-states}.
 
 The Arcadia team already developed a robust liquidation flow which can be re-used by other Creditors,
@@ -938,11 +938,11 @@ which is further described in Paragraph \ref{subsubsec:liquidations}.
 \subsection{Arcadia Lending Pools}
 The Arcadia Lending Pools are just one example of an implementation of an Arcadia Creditor.
 
-An Arcadia Lending Pool is peer-to-pool lending protocol, developed by the Arcadia team.
-On a conceptual level, Arcadia consists of a two-sided lending market between liquidity providers and borrowers:
-
 Since the Arcadia Lending Pools Arcadia are an implementation of the Arcadia Creditor,
 they come with the features as mentioned in Paragraph \ref{sec:arcadia-creditor}.
+
+An Arcadia Lending Pool is peer-to-pool lending protocol, developed by the Arcadia team.
+On a conceptual level, it consists of a two-sided lending market between liquidity providers and borrowers.
 
 Next to that, the Lending Pools also come with a number of innovations compared to other peer-to-pool lending protocols.
 
