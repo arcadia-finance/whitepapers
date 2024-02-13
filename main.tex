@@ -102,7 +102,7 @@ It is the value of assets that is "locked" when a Debtor opens a position.
 A Margin Account is an account held by a Debtor that mitigates the counterparty risk, borne by the Creditor.
 It doe so by guaranteeing that the total value of all assets within the Account is always bigger than the liabilities owed to the Creditor.
 
-\textsc{Open position:} The size of the liability that a specific Debtor has with a specific Creditors.
+\textsc{Open position:} The size of the liability that a specific Debtor has with a specific Creditor.
 
 \section{Collateral Management}
 \label{sec:collateral-management}
@@ -128,7 +128,7 @@ Blockchain has some excellent properties with regards to collateral management:
     \item Smart contracts enforce margin requirements real time on a 24/7 continuous basis.
     \item Atomic execution of transactions avoids expensive reconciliation processes and eliminates settlement risk.
     \item Atomic execution of transactions enables optimistic execution of transactions (e.g. flash loans),
-    which can greatly improve processes such as refinancing loans or even enable completely new financial use-cases.
+    which can greatly improve processes such as refinancing liabilities or even enable completely new financial use-cases.
     \item The permissionless nature of blockchain and Dapps (Decentralised Applications),
     combined with a shared state between all those applications,
     make different financial applications and assets composable and inter-operable by default.
@@ -186,8 +186,8 @@ Lending protocols, perpetual protocol, Prime brokerage protocols, option protoco
 Most DeFi protocols work with over-collateralization to mitigate counterparty risks.
 Meaning that the sum of all collateralized assets must always be bigger, with a certain safety margin, than the sum of all liabilities.
 
-For instance if a user wants to borrow 800\$ worth of token A via a certain lending protocol,
-he/she must first deposit and lock at least 1000\$ worth of token B as collateral in the protocol.
+For example, if a user wants to borrow 800\$ worth of token A via a certain lending protocol,
+he/she must first deposit and lock at least 1000\$ worth of token B as collateral in said protocol.
 
 Most protocols have some kind of liquidation mechanism in place to prevent bad debt when the market would move against a user with an open position.
 Using the previous example, if token B drops in value compared to token A, say from 1000\$ to 900\$,
@@ -244,7 +244,7 @@ This should open up a whole new solution space for Debtors to manage collaterali
 and might even enable a single Debtor to share its margin between non-trusting Creditors without intermediaries.
 Hence it is quite ironic that traditional brokers and clearing houses offer more advanced capabilities for cross- and portfolio-margined positions, compared to the state-of-the-art DeFi protocol.
 
-Again there are again multiple underlying root causes why collateral in DeFi is still fragmented and under-utilized:
+Again there are multiple underlying root causes why collateral in DeFi is still fragmented and under-utilized:
 \begin{itemize}
     \item As mentioned in Section \ref{subsubsec:hacks-and-exploits}, there is no shared collateral management layer, each protocol with collateral has their own non-standardized implementation.
     \item Protocols are build around specific assets types (eg. lending protocols for simple ERC20 or for AMM LPs, or for NFTs). 
@@ -252,7 +252,7 @@ Again there are again multiple underlying root causes why collateral in DeFi is 
     \item Blockchain is still a young technology, core non-financial infrastructure required for on-chain portfolio management (think Account Abstraction, intents or cross-chain messaging) is only recently developed or still in development. 
 \end{itemize}
 
-Fragmentation of assets not only results in capital inefficiencies, it also contributes to a challenging user experience, more on that in the next Section (\ref{subsubsec:end-user-complexity}).
+Fragmentation of assets not only results in capital inefficiencies, it also contributes to a challenging user experience, more on that in Section \ref{subsubsec:end-user-complexity}.
 
 \subsubsection{End user complexity}
 \label{subsubsec:end-user-complexity}
@@ -318,7 +318,7 @@ This is exactly what we are building with the Arcadia Financial Technology stack
 
 The Arcadia Financial Technology stack, illustrated in Figure \ref{fig:arcadia-financial-technology-stack},
 is our answer to resolve the inefficiencies outlined in Paragraph \ref{subsec:inefficiencies}.
-It is implemented for the Ethereum Virtual Machine (EVM) and consists out of three sub-protocols:
+It is implemented for the Ethereum Virtual Machine (EVM) and consists out of three protocols:
 \begin{itemize}
     \item The Arcadia Registry.
     \item The Arcadia Accounts.
@@ -350,7 +350,7 @@ The protocol has to implement a single interface to become interoperable with th
 The protocols devs only have to implement their creditor specific smart contracts,
 and get the management of assets, pricing of assets, margin calculations... out of the box.
 
-In the next Sections we will discuss each of the three different sub-protocols in more detail.
+In the next Sections we will discuss each of the three different protocols in more detail.
 
 \section{Arcadia Registry}
 \label{sec:arcadia-registry}
@@ -481,18 +481,18 @@ Building further on this logic, the Registry can price any combination of assets
 Given a portfolio $P$ consisting of assets with amount $a_{i}$, the value of the portfolio denominated in a certain numeraire $v_{spot}^{num}(P)$ is given as:
 \begin{equation}
     \label{eq:portfolio-value-mtm}
-    v_{spot}^{num}(P) = \frac{\sum_{i}{v^{usd}(a_{i})}}{r_{num\rightarrow usd}}\frac{S_{num}}{10^{18}}
+    v_{spot}^{num}(P) = \frac{\sum_{i}{v^{usd}_{i}(a_{i})}}{r_{num\rightarrow usd}}\frac{S_{num}}{10^{18}}
 \end{equation}
 A correction $S_{num}$ is applied to bring the value from the 18 decimals precision to the actual decimal precision of the numeraire.
 
 The result of equation \ref{eq:portfolio-value-mtm} is the spot or MtM (mark-to-market) value of the portfolio.
 
 Next to the MtM value of the portfolio, the Registry can also calculate risk adjusted portfolios values,
-where assets are discounted with a asset-numeraire specific risk factor $RF_{i}^{c}$, set by each Creditor.
+where assets are discounted with a asset-Creditor specific risk factor $RF_{i}^{c}$, set by each Creditor.
 The risk adjusted portfolio value $v_{risk}^{num}(P)$ is then given as:
 \begin{equation}
     \label{eq:portfolio-value-risk-adjusted}
-    v_{risk}^{num}(P) = \frac{\sum_{i}{RF_{i}^{c} \cdot v^{usd}(a_{i})}}{r_{num\rightarrow usd}}\frac{S_{num}}{10^{18}}
+    v_{risk}^{num}(P) = \frac{\sum_{i}{RF_{i}^{c} \cdot v^{usd}_{i}(a_{i})}}{r_{num\rightarrow usd}}\frac{S_{num}}{10^{18}}
 \end{equation}
 
 There are two important risk adjusted portfolios values: The Collateral Value $v_{coll}^{num}$ of the Account and the Liquidation Value $v_{liq}^{num}$ of the account.
@@ -501,10 +501,12 @@ Both are used to check the Margin Requirements of the account.
 The Collateral Value can be calculated by plugging the asset-creditor specific collateral factors $CF_{i}^{c}$ of each asset into equation \ref{eq:portfolio-value-risk-adjusted}.
 And the Liquidation Value respectively by using the liquidation factors $LF_{i}^{c}$ of each asset.
 
+The Margin requirements, Collateral Value and Liquidation Value are discussed in more detail in Paragraph \ref{subsec:margin-accounts}.
+
 \subsection{Creditor Specific Risk Parameters}
 \label{subsec:creditor-specific-cisk-parameters}
 Each Creditor can set a number of risk parameters in the Registry to protect themselves against different risks.
-These risk parameters are taking into account when depositing assets, or when risk-adjusted portfolio values are calculated.
+These risk parameters are taken into account when depositing assets, or when risk-adjusted portfolio values are calculated.
 
 The risk parameters can be asset specific, protocol specific or a single value per creditor.
 
@@ -547,7 +549,9 @@ As such assets with low on-chain liquidity or small market caps can be used as c
 while market manipulation risks, such as the Mango Market Exploit\cite{coindeskDeFiExchange} can be mitigated.
 
 The total exposure of a primary asset takes into account both direct deposits of the primary asset, as indirect exposures via derived assets.
-If a maximum exposure is reached, no additional amount of the primary asset can be deposited, nor can any derived asset be deposited that is composed of the primary asset.
+
+If a maximum exposure is reached, no additional amount of the primary asset can be deposited,
+nor can any derived asset be deposited that is composed of the primary asset.
 
 For derived assets, there are two mechanisms that provide the Creditor to an upper bound for certain risks.
 As mentioned before, none of the primary assets of which the derived asset is ultimately composed can exceed their maximum exposure to mitigate risks of market manipulation and low liquidity.
@@ -555,12 +559,13 @@ Secondly, each creditor can set an upper limit to the total USD exposure of all 
 As such, the Creditor can limit potential losses due to exploits in the protocol.
 
 \subsubsection{Minimum Margin}
+\label{subsubsec:minimum-margin}
 Liquidating unhealthy positions has a considerable gas cost, which liquidators take into account when deciding to liquidate a position or not.
 This gas cost is independent of the size of the open position.
 Without a Minimum Margin, this could lead to very small unhealthy positions that are never profitable to liquidate.
 Or even worse, liquidations that are successfully started, but never profitable to end.
 
-To avoid both problems, accounts must have a Creditor specific minimum value of collateral, the minimum margin $MM^{c}$, before they can open a position.
+To avoid both problems, accounts must have a Creditor specific minimum value of collateral, the minimum margin $M_{min}^c$, before they can open a position.
 The minimum margin can not be used to back liabilities and can be seen as an amount of collateral that is locked to at least cover gas costs of Liquidators.
 
 \section{Arcadia Accounts}
@@ -598,7 +603,8 @@ With Arcadia Accounts, the asset management, Accounting logic, and the enforceme
 Arcadia Accounts are permissionless and fully composable with tokens and external DeFi protocols.
 They can be used by on-chain investors to increase their buying power, to short assets, or to hold financial contracts such as futures, swaps, options or other derivatives.
 
-In the next paragraphs (Note: should we move this to an appendix??) we will introduce some margin related concepts and express the Margin requirements mathematically.
+In the next paragraphs we will introduce some margin related concepts and express the Margin requirements mathematically.
+
 Note that we do not 100\% follow the conventions and terminology of the traditional financial world.
 
 \subsubsection{Portfolio Margin}
@@ -622,26 +628,21 @@ All assets held by the Account (deposited and bought) are taken in consideration
 We define the available margin, $am$, as the total value that the Account can use as margin to secure liabilities.
 
 This total value equals the risk-adjusted portfolio value, expressed by Formula \ref{eq:portfolio-value-risk-adjusted},
-where each asset is discounted with an asset-numeraire specific risk factor (the Collateral Factor).
+where each asset is discounted with an asset-Creditor specific risk factor (the Collateral Factor).
 
 Hence the available margin equals the Collateral Value as defined in Paragraph \ref{subsec:portfolio-pricing}
 (we will use the terms 'available margin' and 'Collateral Value' interchangeable).
 \begin{equation}
     \label{eq:available-margin}
-    am = v_{coll}^{num} = \frac{\sum_{i}{CF_{i}^{c} \cdot v^{usd}(a_{i})}}{r_{num\rightarrow usd}}\frac{S_{num}}{10^{18}}
+    am = v_{coll}^{num} = \frac{\sum_{i}{CF_{i}^{c} \cdot v^{usd}_{i}(a_{i})}}{r_{num\rightarrow usd}}\frac{S_{num}}{10^{18}}
 \end{equation}
 
 \subsubsection{Open position}
 The open position, $op^c$, equals the size of the liability that a specific Debtor has with a specific Creditor.
 
 \subsubsection{Minimum Margin}
-The minimum margin, $M_{min}^c$, is the minimum amount of collateral value that must be held in an Account to be able an open position with a Creditor.
-
-The main purpose of the minimum margin is to avoid having accounts with small liabilities, that are unprofitable to liquidate.
-The cost to liquidate assets in general consists of two parts, a cost that increases linearly with the size of the liabilities that has to be repaid (swap fees, slippage, liquidation penalties...)
-and a cost that is Independent from the size of the liabilities (mainly the gas costs executing the liquidation transactions on-chain).
-
-The minimum margin should be set by the Creditor such that it can cover in all costs these fixed costs related to the liquidation of assets.
+As explained in Paragraph \ref{subsubsec:minimum-margin}, the minimum margin, $M_{min}^c$, 
+is the minimum amount of collateral value that must be held in an Account to be able to open position with a Creditor.
 
 \subsubsection{Used Margin}
 The used margin, $um$, is the total amount of collateral value locked by the Account to ensure that the Account remains over-collateralized.
@@ -686,7 +687,7 @@ When the minimal amount of collateral is deposited, the free margin will be zero
 \begin{equation}
     CF_{i}^{c} \cdot v^{num}_i = um
 \end{equation}
-And if we ignore the minimum margin (this will be small compared to the open position) this simplifies to:
+And if we ignore the minimum margin (this will be small compared to the open position in most cases) this simplifies to:
 \begin{equation}
     CF_{i}^{c} \cdot v^{num}_i = op^c
 \end{equation}
