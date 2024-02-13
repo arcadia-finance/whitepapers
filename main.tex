@@ -247,7 +247,7 @@ Hence it is quite ironic that traditional brokers and clearing houses offer more
 Again there are multiple underlying root causes why collateral in DeFi is still fragmented and under-utilized:
 \begin{itemize}
     \item As mentioned in Section \ref{subsubsec:hacks-and-exploits}, there is no shared collateral management layer, each protocol with collateral has their own non-standardized implementation.
-    \item Protocols are build around specific assets types (eg. lending protocols for simple ERC20 or for AMM LPs, or for NFTs). 
+    \item Protocols are build around specific assets types (eg. lending protocols for simple ERC-20 or for AMM LPs, or for NFTs). 
     Different asset types cannot be used within the same protocol to back a single position and emergence of new primitives/token standards requires migrations/new protocols.
     \item Blockchain is still a young technology, core non-financial infrastructure required for on-chain portfolio management (think Account Abstraction, intents or cross-chain messaging) is only recently developed or still in development. 
 \end{itemize}
@@ -454,7 +454,7 @@ It will first calculate the amounts of the underlying assets $a_{u}$, given the 
 \end{equation}
 Where $f_{u}(a)$ is a flashloan-resistant and protocol specific function.
 For example for a Uniswap V2 Liquidity Positions it can be derived from the reserves of the Uniswap V2 pool contract,
-or for ERC4626 tokens it can be calculated by calling \texttt{convertToAssets(shares)}.
+or for ERC-4626 tokens it can be calculated by calling \texttt{convertToAssets(shares)}.
 
 In a second step, the Derived Asset Module will recursively fetch the usd-value of each of the underlying assets $v^{usd}(a_{u})$ from the Registry,
 using the underlying asset amounts $a_{u}$ from Equation \ref{eq:underlying-asset-amounts}.
@@ -746,7 +746,7 @@ depending on the Used Margin of the Account and the risk adjusted total values o
 \subsection{Upgradeability}
 \label{subsec:upgradeability}
 
-Arcadia Accounts are based on the ERC1967 standard for Proxy accounts.
+Arcadia Accounts are based on the ERC-1967 standard for Proxy accounts.
 Each account contract points to a certain Account logic contract.
 It is the logic contract that implements the features to: deposit/withdraw assets, do flash actions, manage assets, authorise delegations...
 
@@ -785,10 +785,10 @@ New assets that can be deposited into Accounts are by default not accepted for a
 Only if the Creditor explicitly allows the asset, can their Debtors use it as collateral.
 
 \subsection{Token Standard Agnostic}
-Accounts are token-standard agnostic, meaning not only typical ERC20 tokens can be deposited,
-Also assets complying with other standards, such as ERC721 (”NFTs”, such as Uniswap V3 LP positions) and ERC1155 assets can be held in an Arcadia Account.
+Accounts are token-standard agnostic, meaning not only typical ERC-20 tokens can be deposited,
+Also assets complying with other standards, such as ERC-721 (”NFTs”, such as Uniswap V3 LP positions) and ERC-1155 assets can be held in an Arcadia Account.
 
-That does however not mean that because ERC721 is supported, all implementation of ERC721 are supported.
+That does however not mean that because ERC-721 is supported, all implementation of ERC-721 are supported.
 As mentioned in Paragraph \ref{subsec:multi-asset}, each individual asset (individual contract address and, if applicable, token Id)
 must be allowed by the Registry and secondly be accepted by the Creditor before a Debtor can use it as collateral.
 
@@ -960,10 +960,10 @@ Using the ERC-4626 standard makes the accounting logic gas efficient and ensures
 \subsubsection{Accounting Liabilities}
 \label{subsubsec:accounting-liabilities}
 When a Debtor borrows from the Lending Pool,
-an ERC4626 token (the debt token or dToken) will be minted to his/her Arcadia Account.
+an ERC-4626 token (the debt token or dToken) will be minted to his/her Arcadia Account.
 The dTokens tokens are not transferable.
 
-The interests on all debt are automatically and continuously accruing via the ERC4626 standard.
+The interests on all debt are automatically and continuously accruing via the ERC-4626 standard.
 
 \subsubsection{Tranches}
 % Add image illustrating Tranches?
@@ -986,15 +986,15 @@ Not fragmenting the liquidity over different pools results in deeper liquidity f
 \label{subsubsec:accounting-liquidity}
 Anyone who owns the underlying asset of the Lending Pool, can deposit liquidity via one of the Tranches.
 
-When a Liquidity Provider (LP) deposits liquidity, they receive an ERC4626 yield bearing token (ybToken).
-Each Tranche will have its own ERC4626 token.
+When a Liquidity Provider (LP) deposits liquidity, they receive an ERC-4626 yield bearing token (ybToken).
+Each Tranche will have its own ERC-4626 token.
 
 The Lending Pool will do the accounting how much liquidity is owned by each Tranche,
 while the tranches in turn will do the accounting of how much of that liquidity is owned by their respective LPs.
 
 Yield earned through interests and liquidation fees is divided over the different Tranches
 (more Junior tranches will earns a bigger relative share of the yield).
-And via the ERC4626 standard the yield is further pro-rata distributed to the Tranches LPs.
+And via the ERC-4626 standard the yield is further pro-rata distributed to the Tranches LPs.
 
 \subsubsection{Liquidations}
 \label{subsubsec:liquidations}
