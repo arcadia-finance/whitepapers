@@ -5,10 +5,6 @@
 \usepackage{lipsum}
 \usepackage{url}
 
-%% use four levels for sections
-\expandafter\newcommand\csname r@tocindent4\endcsname{4in}
-\setcounter{secnumdepth}{4}
-
 %% header
 \title{Arcadia Finance [Draft]}
 \subtitle{November 2023}
@@ -24,37 +20,47 @@
 
 \renewcommand{\shortauthors}{Smets et al.}
 
-%% Add whitespace
+%% Add whitespace under header
 \begin{teaserfigure}
     \vspace{1em}
     \Description{Just used to add a whitespace over the length of the document.}
 \end{teaserfigure}
 
+%% Show page numbers
+\settopmatter{printfolios=true}
+
+%% Decrease whitespace under Figures
+\setlength\textfloatsep{\baselineskip}
+
 \begin{document}
 
 \begin{abstract}
-    (To Do)
-    Arcadia Finance introduces a novel on-chain architecture for collateral management of margined positions.
+    Arcadia Finance introduces a novel on-chain architecture, the Arcadia Finance Technology Stack,
+    designed for efficient collateral management of margined positions.
 
-    The overarching vision of Arcadia Finance is to build standardized on-chain infrastructure for collateral management,
+    Our overarching vision is to build standardized on-chain infrastructure for collateral management,
     unlocking the capital in diverse DeFi assets, and establishing a comprehensive platform for managing collateralized positions. 
 
-    As we anticipate the continued growth of on-chain tokenized assets and financial primitives, the importance of standardized and efficient collateral management becomes increasingly paramount.
-    Without it, the full potential of these assets and financial primitives remains unrealized, hindered by protocol inflexibility and fragmentation.
+    As we anticipate the continued growth of tokenized assets and emergence of new on-chain financial primitives, 
+    the importance of standardized and efficient collateral management becomes increasingly paramount.
 
-    Arcadia strives to enable higher capital efficiency for users, transparent risk assessment, faster go-to-market time for new protocols without compromising on security, self-custody and decentralisation.
+    Arcadia strives to enable higher capital efficiency for users, transparent risk assessment,
+    faster go-to-market time for new protocols and an improved user experience.
+    All without compromising on security, self-custody and decentralisation.
 \end{abstract}
 
-\keywords{Collateral management, DeFi, EVM}
+\keywords{Collateral Management, DeFi, Margin, EVM}
 
 \maketitle
 
-\section{Introduction (To Do)} 
+\section{Introduction} 
 \label{sec:introduction}
-This paper will explain the rationale why we are building the Arcadia Finance Technology Stack, and go over its technical implementation.
+This paper will explain the rationale why we are building the Arcadia Finance Technology Stack, what its main benefits are,
+and how it is technically implemented.
 
-The Arcadia Financial Technology Stack is a set of on-chain, inter-linked financial protocols, centered around collateral management.
-They facilitate non-trusting peers to close financial contracts without the need of intermediaries.
+The Arcadia Financial Technology Stack is a set of on-chain, inter-linked financial protocols,
+centered around collateral management and margined positions.
+They facilitate non-trusting Debtors and Creditors to close financial contracts without the need of trusted intermediaries.
 
 It consists out of three protocols, each with distinct responsibilities and permissions:
 \begin{itemize}
@@ -63,29 +69,43 @@ It consists out of three protocols, each with distinct responsibilities and perm
 \item The Generalised Creditor.
 \end{itemize}
 
+To establish a shared understanding, we start this paper with Section \ref{sec:terminology},
+where we define concepts and terminology related to collateral management and margined positions.
+
+Section \ref{sec:collateral-management} provides a brief exploration of the historical use of collateral in the financial sector,
+with a focus on blockchain-based solutions.
+
+Following this, Section \ref{sec:collateral-management-in-DeFi} goes into more detail how collateral is used within DeFi,
+pinpointing current shortcomings and inefficiencies, and discusses how novel architectures might address these issues.
+
+In Section \ref{sec:arcadia-financial-technology-stack} we introduce our implementation of such a novel architecture:
+the Arcadia Financial Technology stack.
+
+Finally, each of the underlying protocols of the Arcadia Financial Technology stack are discussed in detail 
+in Sections \ref{sec:arcadia-registry}, \ref{sec:arcadia-accounts} and \ref{sec:arcadia-creditor}.
+
 \section{Terminology}
+\label{sec:terminology}
+\textsc{Collateral:} The assets pledged by a Debtor to a Creditor to cover the credit risk in case the Debtor would default.
+
 \textsc{Debtors and Creditors:} We will often use the terms Debtors and Creditors throughout this paper,
 our definition is broader than the commonly accepted context within traditional debt arrangements.
-We use the term Debtor for any holder of a financial instrument that results in liabilities on the balance sheet 
-(borrowers, option writers, payers of cash-settled futures contract or swaps...). 
+We use the term Debtor for any holder of a financial instrument that results in liabilities on the balance sheet
+(borrowers, option writers, payers of cash-settled futures contract or swaps...).
 While the Creditor refers to the entity to whom the liability is owed.
-
-\textsc{Open position:} The size of the liability that a specific Debtor has with a specific Creditors.
-
-\textsc{Collateral:} The assets pledged by a Debtor to a Creditor to cover the credit risk in case the Debtor would default.
 
 \textsc{Margin:} The value of collateral assets that a Debtor must hold in a Margin Account to cover the credit risk of its Creditor(s).
 The margin requirements, are set by the Creditor.
 It is the value of assets that is "locked" when a Debtor opens a position.
 
-\textsc{Margin Account:} Our definition of a Margin Account extends beyond the conventional usage within Brokerage Accounts. 
-The holder of a Margin Account not only has the ability to utilize and transact with the assets within the account (as is the case with a cash account or your standard crypto wallet),
-but can also incur liabilities against those assets. The margin requirements (initial and maintenance margin) are set by the Creditor.
+\textsc{Margin Account:} Our definition of a Margin Account extends beyond the conventional usage within Brokerage Accounts.
+A Margin Account is an account held by a Debtor that mitigates the counterparty risk, borne by the Creditor.
+It doe so by guaranteeing that the total value of all assets within the Account is always bigger than the liabilities owed to the Creditor.
 
-\section{History of Collateral Management}
-\label{subsec:history}
+\textsc{Open position:} The size of the liability that a specific Debtor has with a specific Creditor.
 
-Withing the financial system, Collateral serves a primary function in mitigating the counterparty risks borne by Creditors, in case Debtors would fail to fulfill their financial liabilities.
+\section{Collateral Management}
+\label{sec:collateral-management}
 
 \subsection{Origin}
 Evidence of collateralized loans, also known as secured loans, can be traced back to at least 400 BCE in Ancient Greece \cite{millett2002lending}.
@@ -95,40 +115,46 @@ In these early transactions, borrowers provided tangible assets as collateral to
 Over the past decades we have witnessed significant advancements in collateral management practices.
 
 With the rise of complex financial instruments and the globalization of markets, the role of collateral has expanded beyond traditional lending.
-Collateral is now used to secure a wide range of financial instruments, including derivatives trading, margin accounts, and other sophisticated financial contracts.
+Collateral is now used to secure a wide range of financial instruments, including derivatives trading, margin accounts,
+and other sophisticated financial contracts.
 
 The digitalisation of the financial system greatly improved the efficiency of the exchange and settlement of collateral.
 Reporting, margining and reconciliation processes could be executed on a daily basis instead of on a weekly or even monthly basis \cite{simmons2019collateral}.
-% Add some figures or numbers here?
 
 The emergence of blockchain technology and decentralized finance (DeFi) led to a new wave of innovation for collateral management.
 Blockchain has some excellent properties with regards to collateral management:
 \begin{itemize}
     \item With it's immutable and transparent ledger, collateral can be audited 24/7.
     \item Smart contracts enforce margin requirements real time on a 24/7 continuous basis.
-    \item The atomic execution of transactions avoid expensive reconciliation processes and eliminates settlement risk.
-    \item The atomic execution also enables optimistic execution of transactions (e.g. flash loans) which can greatly improve processes such as refinancing loans or even enable completely new financial use-cases.
-    \item The permissionless nature of blockchain and Dapps (Decentralised Applications), combined with a shared state between all those applications, make different financial applications and assets composable and inter-operable by default.
+    \item Atomic execution of transactions avoids expensive reconciliation processes and eliminates settlement risk.
+    \item Atomic execution of transactions enables optimistic execution of transactions (e.g. flash loans),
+    which can greatly improve processes such as refinancing liabilities or even enable completely new financial use-cases.
+    \item The permissionless nature of blockchain and Dapps (Decentralised Applications),
+    combined with a shared state between all those applications,
+    make different financial applications and assets composable and inter-operable by default.
 \end{itemize}
 
 It is no coincidence that some of the first blockchain applications with product market fit, were secured lending protocols.
-These early pioneers like Maker\cite{team2017dai}, Aave\cite{thornburg2020aave} or Compound\cite{leshner2019compound} rely on collateralization as the only way to mitigate counter party risks and work with over-collateralized loans.
+These early pioneers, like Maker\cite{team2017dai}, Aave\cite{thornburg2020aave} or Compound\cite{leshner2019compound},
+rely on collateralization as the only way to mitigate counter party risks and work with over-collateralized loans.
 As such they enable peer-to-peer or even peer-to-contract loans, without the need of any trusted intermediaries.
 
-\subsection{Collateral management in crisis}
+\subsection{Collateral Management in crisis}
 Collateralization, both in the traditional financial world and in DeFi, is not without its problems.
 Recent crises in both industries highlight the need for better collateral management infrastructure.
 
-Bad collateral management, rehypothecation of collateral, opaque accounting practices of collateral,
+Bad collateral management, rehypothecation of collateral, opaque accounting practices
 and outright fraud with collateralized assets, are all cited as root causes\cite{hellwig2008causes} behind the 2008 financial crisis.
 Following the crisis, a variety of major regulations were introduced (e.g. EMIR in the European Union, or Dodd-Frank in the USA).
 While these packages were successful in stabilizing the financial system, they have clear centralization tendencies\cite{gregory2014central}.
-The major beneficiaries of said regulations are the major established institutions, mandatory intermediaries for central clearing, central banks and the regulatory bodies themselves.
+The major beneficiaries of said regulations are the major established institutions, mandatory intermediaries for central clearing,
+central banks and the regulatory bodies themselves.
 This might paradoxically cement even greater systemic risks into the financial system.
 
 In 2022 DeFi experienced it's own financial crisis.
 In a few months time, many of the ecosystem's key (albeit mostly centralised) players collapsed, and removed all liquid with them.
-Again bad collateral management, rehypothecation of collateral, opaque protocol mechanisms, and outright fraud with collateralized assets were at the root of the problem.
+Again bad collateral management, rehypothecation of collateral, opaque protocol mechanisms,
+and outright fraud with collateralized assets were at the root of the problem.
 
 A recurring trend with protocols that imploded in 2021 and 2022 is that the lack of collateralization was obfuscated behind complex protocol designs and narratives. 
 Some of the notorious examples are:
@@ -141,24 +167,36 @@ Some of the notorious examples are:
 
 DeFi protocols should focus more on collateralization, and less on Complex tokenomics that obfuscate who ends up paying when things go bad.
 
-\subsection{The Future?}
+\subsection{The Future}
 The over-collateralized DeFi protocols however, operated remarkably well during the aforementioned crisis, even better than their traditional counterparts.
 This is well illustrated by some of the collapsed centralised entities, active in the space until 2022, that had both on- and off-chain liabilities.
 All on-chain Creditors were repaid in a timely and orderly fashion, as enforced by their smart contracts.
-While the lawsuits for the many off-chain Creditors are still ongoing (and probably will be for many years).
+While the lawsuits for the many off-chain Creditors are, at the time of writing this paper, still ongoing (and probably will be for many years).
 
 It is for these types of crises that liabilities are secured in the first place.
 These events further strengthened our vision that blockchain-based protocols have the potential to become the dominant infrastructure for collateral management.
 But before we get there, a number of Inefficiencies of current DeFi protocols must be overcome, as we will discuss in Section \ref{subsec:inefficiencies}.
 
 \section{Collateral Management in DeFi}
+\label{sec:collateral-management-in-DeFi}
+Almost all DeFi protocols use collateralization to manage counterparty risks between different user-groups in some way of form.
+Lending protocols, perpetual protocol, Prime brokerage protocols, option protocols etc. all require some or all users to deposit collateral.
+
 \subsection{General Principles}
-% To Do, use picture, keep it high level
+Most DeFi protocols work with over-collateralization to mitigate counterparty risks.
+Meaning that the sum of all collateralized assets must always be bigger, with a certain safety margin, than the sum of all liabilities.
+
+For example, if a user wants to borrow 800\$ worth of token A via a certain lending protocol,
+he/she must first deposit and lock at least 1000\$ worth of token B as collateral in said protocol.
+
+Most protocols have some kind of liquidation mechanism in place to prevent bad debt when the market would move against a user with an open position.
+Using the previous example, if token B drops in value compared to token A, say from 1000\$ to 900\$,
+the position of the user can be (fully or partially) liquidated.
 
 \subsection{Inefficiencies}
 \label{subsec:inefficiencies}
 
-In the next sections we will highlight a number of inefficiencies,
+In the next paragraphs we will highlight a number of inefficiencies,
 which need to be overcome before DeFi can be broadly adopted as the go-to infrastructure for collateral management.
 
 \subsubsection{Hacks and exploits}
@@ -167,28 +205,31 @@ which need to be overcome before DeFi can be broadly adopted as the go-to infras
 The major problem in DeFi today is the number of hacks and exploits, the estimated amount of funds lost in 2023 ranges from \$400M to \$1B.
 There are many security related practices the sector as a whole should improve on, but we want to highlight one problem.
 
-Almost all DeFi protocols use over-collateralization in some way of form to manage counterparty risks between different user-groups.
-Lending protocols, perpetual protocol, Prime brokerage protocols, option protocols etc. all require some or all users to deposit collateral.
+As mentioned before, almost all DeFi protocols use collateralization in some way of form.
 While the nature of the financial contracts may be very different for each of these protocols, they share a great amount of common logic:
 \begin{itemize}
     \item Pricing of collateralized assets.
     \item Management (depositing, withdrawing...) of collateralized assets.
-    \item asset-liability specific risk parameters and calculations.
+    \item Margin calculations.
+    \item Management of asset-liability specific risk parameters.
     \item Margin calls and liquidations of risky positions.
     \item Settling bad debt.
+    \item ...
 \end{itemize}
 
 Pricing of assets, management of assets and liquidation logic is complex, error prone and most mistakes easily lead to severe user losses.
-Today all protocols implement these redundantly, even for new versions of the same protocol. 
-Not only is this very costly in development time, the core logic is rewritten and re-deployed time and time again, and with each new deployment, new bugs can be introduced.
+Today all protocols implement these redundantly, even for new versions of the same protocol.
+
+Not only is this very costly in development and auditing time, the core logic is rewritten and re-deployed time and time again,
+and with each new deployment new bugs can be introduced.
 
 Being able to build on top of battle tested code would benefit smart contract developers, protocols, users and the overall ecosystem.
 
 \subsubsection{Fragmented and isolated collateral}
 \label{subsubsec:fragmented-collateral}
 
-The average DeFi-user has collateralized assets fragmented and isolated across a multitude of protocols (do we have any numbers on this?), and many quality assets are sitting idle.
-While isolated margin positions have there benefits (they isolate risks), they are not capital efficient.
+The average DeFi-user has collateralized assets fragmented and isolated across a multitude of protocols, and many quality assets are sitting idle.
+While isolated margin positions have their benefits (they isolate risks), they are not capital efficient.
 Having the ability to use a portfolio of assets as collateral improves the capital efficiency for a number of reasons:
 \begin{itemize}
     \item The volatility of a portfolio of assets is always equal to, or lower than the weighted volatility of the individual assets.
@@ -199,11 +240,11 @@ Having the ability to use a portfolio of assets as collateral improves the capit
 \end{itemize}
 
 Having a global shared state across applications and assets is often cited as one of the key advantages of blockchain over centralised financial infrastructures\cite{schar2021decentralized}.
-This should open up a whole new solution space for Debtors to manage collateralized positions, 
+This should open up a whole new solution space for Debtors to manage collateralized positions,
 and might even enable a single Debtor to share its margin between non-trusting Creditors without intermediaries.
 Hence it is quite ironic that traditional brokers and clearing houses offer more advanced capabilities for cross- and portfolio-margined positions, compared to the state-of-the-art DeFi protocol.
 
-Again there are again multiple underlying root causes why collateral in DeFi is still fragmented and under-utilized:
+Again there are multiple underlying root causes why collateral in DeFi is still fragmented and under-utilized:
 \begin{itemize}
     \item As mentioned in Section \ref{subsubsec:hacks-and-exploits}, there is no shared collateral management layer, each protocol with collateral has their own non-standardized implementation.
     \item Protocols are build around specific assets types (eg. lending protocols for simple ERC20 or for AMM LPs, or for NFTs). 
@@ -211,7 +252,7 @@ Again there are again multiple underlying root causes why collateral in DeFi is 
     \item Blockchain is still a young technology, core non-financial infrastructure required for on-chain portfolio management (think Account Abstraction, intents or cross-chain messaging) is only recently developed or still in development. 
 \end{itemize}
 
-Fragmentation of assets not only results in capital inefficiencies, it also contributes to a challenging user experience, more on that in the next Section (\ref{subsubsec:end-user-complexity}).
+Fragmentation of assets not only results in capital inefficiencies, it also contributes to a challenging user experience, more on that in Section \ref{subsubsec:end-user-complexity}.
 
 \subsubsection{End user complexity}
 \label{subsubsec:end-user-complexity}
@@ -248,38 +289,73 @@ Most notable are the proposals for Account Abstraction (e.g. EIP-3074 and EIP-43
 Both abstractions are already successfully applied (albeit in a somewhat non-standardized form) within DeFi by Decentralised Exchanges, NFT-marketplaces and their aggregators.
 
 \subsection{New Architectures}
-During the last months many solutions were proposed by different protocols and stakeholders on how to build a more robust decentralised financial system.
+\label{subsec:new-architectures}
+Over the course of 2023, a number of interesting solutions were proposed by different protocols and stakeholders on how to build more robust decentralised financial systems.
 Notable recent papers are from Uniswap V4\cite{adams2023uniswap}, Morpho\cite{gontier2023morpho} and Euler\cite{euler2023protocols}.
-All mention similar concepts as the distinction between product and protocol, modularization of the protocol, oracle agnostic implementations and explicitly separating the logic of the protocol in different layers,
+
+All mention similar concepts as the distinction between product and protocol, modularization of the protocol,
+oracle agnostic implementations and explicitly separating the logic of the protocol in different layers,
 where layers with different complexity evolve at different speeds.
 
 Especially the last concept, to separate the logic in different layers, resonates with the long term vision of the Arcadia Finance team.
 Different Logic layers of the financial stack, with different complexities should have different life-cycles and innovation timelines.
-With the lowest most core component the slowest moving, while the upper user facing layers must evolve and adapt quick in response ever changing markets.
+With the lowest most core component the slowest moving, while the upper user facing layers must evolve and adapt quick in response to ever changing markets.
 
-A good practical example is uniswap V4, where Uniswap Labs implements the underlying core mathematical logic for CLAMMs (Concentrated Liquidity Automated Market Makers).
-Other teams can build in a permissionless manner on top of the Uniswap V4 protocol and develop feature rich and fast innovating new DEXs, without the need and risks of redundantly implementing the complex maths.
+A good practical example is uniswap V4,
+where Uniswap Labs implements the underlying core mathematical logic for CLAMMs (Concentrated Liquidity Automated Market Makers).
+Other teams can build in a permissionless manner on top of the Uniswap V4 protocol and develop feature rich and fast innovating new DEXs,
+without the need and risks of redundantly implementing the complex maths related to concentrated liquidity.
 
 Also over-collateralized protocols would benefit from a similar architecture.
-A shared standardized and permissionless layer with battle tested logic for collateral management, on top of which Creditors build their application specific financial contracts.
+A shared standardized and permissionless layer with battle tested logic for collateral management and margin calculations,
+on top of which Creditors build their application specific financial contracts.
+And where fast moving end-user facing features are developed independently of the core logic.
 
-Bringing back pristine focus to collateralization is exactly what we are doing with the Arcadia Financial Technology Stack.
-We believe that taking a collateral management first approach results in overall better DeFi protocols.
-
+This is exactly what we are building with the Arcadia Financial Technology stack.
 
 \section{The Arcadia Financial Technology Stack}
+\label{sec:arcadia-financial-technology-stack}
 
-the Arcadia Financial Technology Stack is implemented for the Ethereum Virtual Machine (EVM) and consists out of three protocols:
+The Arcadia Financial Technology stack, illustrated in Figure \ref{fig:arcadia-financial-technology-stack},
+is our answer to resolve the inefficiencies outlined in Paragraph \ref{subsec:inefficiencies}.
+It is implemented for the Ethereum Virtual Machine (EVM) and consists out of three protocols:
 \begin{itemize}
     \item The Arcadia Registry.
     \item The Arcadia Accounts.
     \item The Generalised Creditor.
 \end{itemize}
 
+\begin{figure}
+    \centering
+    \includegraphics[width=0.45\textwidth]{images/Arcadia-Financial-Technology-Stack.png}
+    \caption{The Arcadia Financial Technology Stack. \label{fig:arcadia-financial-technology-stack}}
+    \Description{Shematic overview of the Arcadia Financial Technology Stack.}
+\end{figure}
+
+The Arcadia Registry is the least opinionated sub-protocol and implements the core pricing and risk management logic.
+By having a shared Arcadia Registry, Creditors can reuse battle tested core logic.
+This not only saves development time, but avoids that bugs are introduced in redundant implementations.
+
+The Arcadia Accounts are advanced user-controlled smart wallets, responsible for asset management and enforcing the margin requirements of their owners.
+With Arcadia Accounts, diversified portfolios can be used as collateral, and the same Account can serve as margin account for different Creditors.
+
+With Arcadia Accounts, their owners can batch together multiple account actions, automate account actions and interact optimistically with third party protocols.
+Arcadia Accounts enable an unprecedented user experience, while not compromising on self-custody and composability.
+
+Arcadia Accounts are further customable to suit specific needs of certain users or Creditors.
+
+Lastly, the Generalised Creditor can be any protocol or financial contract where one or more users have liabilities, or can have liabilities at some point.
+The protocol has to implement a single interface to become interoperable with the rest Arcadia Financial stack.
+
+The protocols devs only have to implement their creditor specific smart contracts,
+and get the management of assets, pricing of assets, margin calculations... out of the box.
+
+In the next Sections we will discuss each of the three different protocols in more detail.
+
 \section{Arcadia Registry}
 \label{sec:arcadia-registry}
 
-The Arcadia Registry is non opinionated on-chain infrastructure with two main functionalities:
+The Arcadia Registry is a non opinionated on-chain infrastructure with two main functionalities:
 \begin{enumerate}
     \item Standardize pricing logic to denominate a portfolio of on-chain assets in a given numeraire (unit of account).
     \item Standardize logic to store, manage and process asset related risk parameters/variables.
@@ -288,9 +364,9 @@ The Arcadia Registry is non opinionated on-chain infrastructure with two main fu
 \subsection{Modular pricing logic}
 \label{subsec:modular-pricing-logic}
 The Arcadia Registry is not a monolithic smart contract containing all logic.
-It consists of a main coordinating smart contract (also referred to as The Registry) and multiple Modules.
+It consists of a main coordinating smart contract (also referred to as The Registry) and multiple append-only Modules.
 
-Each Module is a separate smart contract with the pricing logic for specific Oracle implementations or Asset types.
+Each Module is a separate smart contract with the pricing logic for specific Oracle implementations or specific Asset types.
 The Registry keeps mappings per Creditor of which Module to use for a certain asset.
 
 It is the Creditor itself that sets these mappings, the Creditor decides which Modules to use for each asset they allow their Debtors to use as collateral.
@@ -307,18 +383,27 @@ Working with this modular architecture has a number of advantages:
 \end{itemize}
 
 There are two main categories of modules: Oracle Modules and Asset Modules.
+And Asset Modules can be further divided in two sub-categories: Primary Asset Modules and Derived Asset Modules.
+An overview of the different modules, and their relations are illustrated in Figure \ref{fig:arcadia-registry}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.45\textwidth]{images/Arcadia-Registry.png}
+    \caption{The Arcadia Registry and Modules. \label{fig:arcadia-registry}}
+    \Description{Shematic overview of the Arcadia Registry.}
+\end{figure}
 
 \subsection{Oracle Modules}
 The Oracle Module implements the logic to convert oracle-rate of different oracle technologies into a standardized format.
 Each different oracle implementation (e.g. Chainlink oracles, Pyth oracles, Uniswap TWAPs...) has its own Oracle Module.
 
-Anh oracle has a quote-asset and a base-asset, the oracle-rate $R_{oracle}$ reflects how much tokes of the quote-asset are required to buy 1 token of the base-asset.
+Every oracle has a quote-asset and a base-asset, the oracle-rate $r_{oracle}$ reflects how much tokens of the quote-asset are required to buy 1 token of the base-asset.
 The precision $S_{oracle}$ of oracles is variable and can even be a binary fixed-point number.
 Since all pricing logic within the Arcadia Protocol uses fixed-point numbers with 18 decimals precision,
-a correction from the oracle precision to a precision of 18 decimals is required for the standardized oracle rate $R_{ba\rightarrow qa}$, returned by the Oracle Module.
+a correction from the oracle precision to a precision of 18 decimals is required for the standardized oracle rate $r_{ba\rightarrow qa}$, returned by the Oracle Module.
 \begin{equation}
     \label{eq:oracle-module}
-    R_{ba\rightarrow qa} = R_{oracle} \frac{10^{18}}{S_{oracle}}
+    r_{ba\rightarrow qa} = r_{oracle} \frac{10^{18}}{S_{oracle}}
 \end{equation}
 
 \subsection{Asset Modules}
@@ -331,29 +416,30 @@ Asset Modules can be further divided into two distinct groups: Primary Asset Mod
 
 \subsubsection{Primary Asset Modules}
 Primary assets are defined as assets that are not composed of other assets.
-Primary Assets must be priced using one or more on-chain oracles, for which the rates $R_{ba\rightarrow qa}$ are fetched from the Oracle Modules via the Registry.
+Primary Assets must be priced using one or more on-chain oracles, for which the rates $r_{ba\rightarrow qa}$ are fetched from the Oracle Modules via the Registry.
 
-Each asset of a Primary asset is priced in USD with 18 decimals precision.
-Since the asset amount, $A_{asset}$ can have a variable precision (number of decimals), a correction $S_{asset}$ is again applied to bring the usd-value of the asset $V_{asset}^{usd}$ to 18 decimals precision.
+The Primary Asset Modules will denominate all values of their assets in USD with 18 decimals precision.
+Since the asset amount, $a_{asset}$, can have a variable precision (number of decimals),
+a correction $S_{asset}$ is again applied to bring the usd-value of the Primary Asset, $v_{asset}^{usd}$, to 18 decimals precision.
 
 Depending of the direction of the oracle, the value of the Primary Asset is calculated different.
 When the asset is the base-asset of the oracle:
 \begin{equation}
-    V^{usd}(A_{asset}) = R_{asset\rightarrow usd} \frac{A_{asset}}{S_{asset}}
+    v^{usd}_{asset}(a_{asset}) = r_{asset\rightarrow usd} \frac{a_{asset}}{S_{asset}}
 \end{equation}
 
 When the asset is the quote-asset of the oracle:
 \begin{equation}
-    V^{usd}(A_{asset}) = \frac{1}{R_{usd\rightarrow asset}} \frac{A_{asset}}{S_{asset}}
+    v^{usd}_{asset}(a_{asset}) = \frac{1}{r_{usd\rightarrow asset}} \frac{a_{asset}}{S_{asset}}
 \end{equation}
 
 For some assets, there might not be a direct oracle to USD.
 For these assets multiple oracles can be chained together:
 \begin{equation}
-    V^{usd}(A_{asset}) = R_{asset\rightarrow x} R_{x\rightarrow usd} \frac{A_{asset}}{S_{asset}}
+    v^{usd}_{asset}(a_{asset}) = r_{asset\rightarrow x} r_{x\rightarrow usd} \frac{a_{asset}}{S_{asset}}
 \end{equation}
 \begin{equation}
-    V^{usd}(A_{asset}) = \frac{R_{y\rightarrow usd}}{R_{y\rightarrow asset}} \frac{A_{asset}}{S_{asset}}
+    v^{usd}_{asset}(a_{asset}) = \frac{r_{y\rightarrow usd}}{r_{y\rightarrow asset}} \frac{a_{asset}}{S_{asset}}
 \end{equation}
 
 \subsubsection{Derived Asset Modules}
@@ -361,29 +447,30 @@ Derived assets are defined as assets that are composed of one or more underlying
 Examples of derived assets are liquidity positions of AMMs, staked assets, yield bearing tokens.
 
 The derived Asset Modules will calculate the usd-value in three steps.
-It will first calculate the amounts of the underlying assets $A_{u}$, given the amount of the asset to be priced $A_{asset}$.
+It will first calculate the amounts of the underlying assets $a_{u}$, given the amount of the asset to be priced $a_{asset}$.
 \begin{equation}
     \label{eq:underlying-asset-amounts}
-    A_{u} = f_{u}(A_{asset})
+    a_{u} = f_{u}(a_{asset})
 \end{equation}
-Where $f_{u}(A)$ is a flashloan-resistant and protocol specific function.
-For example for a Uniswap V2 Liquidity Positions it can be derived from the reserves of the pool,
+Where $f_{u}(a)$ is a flashloan-resistant and protocol specific function.
+For example for a Uniswap V2 Liquidity Positions it can be derived from the reserves of the Uniswap V2 pool contract,
 or for ERC4626 tokens it can be calculated by calling \texttt{convertToAssets(shares)}.
 
-In a second step the Derived Asset Module will recursively fetch for the usd-value of each of the underlying assets $V^{usd}(A_{u})$ from the Registry,
-using the underlying asset amounts $A_{u}$ from Equation \ref{eq:underlying-asset-amounts}.
+In a second step, the Derived Asset Module will recursively fetch the usd-value of each of the underlying assets $v^{usd}(a_{u})$ from the Registry,
+using the underlying asset amounts $a_{u}$ from Equation \ref{eq:underlying-asset-amounts}.
 \begin{equation}
-    V^{usd}(A_{u}) = V^{usd}(f_{u}(A_{asset}))
+    v^{usd}(a_{u}) = v^{usd}(f_{u}(a_{asset}))
 \end{equation}
-The underlying assets of a derived assets can be derived assets themselves (e.g. staked LP tokens, or liquidity positions of AMMs where one of the tokens is a yield bearing asset).
-In this case the underlying asset will in turn fetch the usd-values of their underlying asset(s).
-The stop conditions of the recursion are when the underlying asset is a Primary asset, or if a maximum recursion depth (set by the Creditor) is reached.
+The underlying assets of a derived asset can be derived assets themselves (e.g. staked LP tokens, or liquidity positions of AMMs where one of the tokens is a yield bearing asset).
+In this case, the underlying asset will in turn fetch the usd-values of their underlying asset(s) recursively.
+The stop condition of the recursion is when the underlying asset is a Primary asset, or if a maximum recursion depth (set by the Creditor) is reached.
+
 By working with modular and recursive Asset Modules, the pricing logic of the Registry fully captures the benefits of composability withing DeFi.
 
-Lastly, the total usd value of the asset, $V^{usd}(A_{asset})$, is calculated as the sum of the usd values of its underlying assets.
+Lastly, the total usd value of the asset, $v^{usd}(a_{asset})$, is calculated as the sum of the usd values of its underlying assets.
 Since all underlying assets are valued with 18 decimals precision, no additional precision correction is required.
 \begin{equation}
-    V^{usd}(A_{asset}) = \sum_{u}{V^{usd}(A_{u})} = \sum_{u}{V^{usd}(f_{u}(A_{asset}))}
+    v^{usd}(a_{asset}) = \sum_{u}{v^{usd}(a_{u})} = \sum_{u}{v^{usd}(f_{u}(a_{asset}))}
 \end{equation}
 
 \subsection{Portfolio Pricing}
@@ -391,30 +478,35 @@ Since all underlying assets are valued with 18 decimals precision, no additional
 Section \ref{subsec:modular-pricing-logic} explains how the Registry can calculate the value of assets in usd.
 Building further on this logic, the Registry can price any combination of assets in any numeraire (the asset used as unit of account).
 
-Given a portfolio $P$ consisting of assets with amount $A_{i}$, the value of the portfolio denominated in a certain numeraire $V_{spot}^{num}(P)$ with precision $S_{num}$ is given as:
+Given a portfolio $P$ consisting of assets with amount $a_{i}$, the value of the portfolio denominated in a certain numeraire $v_{spot}^{num}(P)$ is given as:
 \begin{equation}
     \label{eq:portfolio-value-mtm}
-    V_{spot}^{num}(P) = \frac{\sum_{i}{V^{usd}(A_{i})}}{R_{num\rightarrow usd}}\frac{S_{num}}{10^{18}}
+    v_{spot}^{num}(P) = \frac{\sum_{i}{v^{usd}_{i}(a_{i})}}{r_{num\rightarrow usd}}\frac{S_{num}}{10^{18}}
 \end{equation}
+A correction $S_{num}$ is applied to bring the value from the 18 decimals precision to the actual decimal precision of the numeraire.
 
 The result of equation \ref{eq:portfolio-value-mtm} is the spot or MtM (mark-to-market) value of the portfolio.
-Next to the MtM value of the portfolio, the Registry can also calculate risk adjusted portfolios value,
-where assets are discounted with a asset-numeraire specific risk factor $RF_{i}^{c}$, set by each Creditor.
-The risk adjusted portfolio value $V_{risk}^{num}(P)$ is then given as:
+
+Next to the MtM value of the portfolio, the Registry can also calculate risk adjusted portfolios values,
+where assets are discounted with a asset-Creditor specific risk factor $RF_{i}^{c}$, set by each Creditor.
+The risk adjusted portfolio value $v_{risk}^{num}(P)$ is then given as:
 \begin{equation}
     \label{eq:portfolio-value-risk-adjusted}
-    V_{risk}^{num}(P) = \frac{\sum_{i}{RF_{i}^{c} \cdot V^{usd}(A_{i})}}{R_{num\rightarrow usd}}\frac{S_{num}}{10^{18}}
+    v_{risk}^{num}(P) = \frac{\sum_{i}{RF_{i}^{c} \cdot v^{usd}_{i}(a_{i})}}{r_{num\rightarrow usd}}\frac{S_{num}}{10^{18}}
 \end{equation}
 
-There are two important risk adjusted portfolios values: The Collateral Value $V_{coll}^{num}$ of the Account and the Liquidation Value $V_{liq}^{num}$ of the account.
+There are two important risk adjusted portfolios values: The Collateral Value $v_{coll}^{num}$ of the Account and the Liquidation Value $v_{liq}^{num}$ of the account.
+
 Both are used to check the Margin Requirements of the account.
-The Collateral Value can be calculated by plugging the asset-numeraire specific collateral factors $CF_{i}^{c}$ of each asset into equation \ref{eq:portfolio-value-risk-adjusted}.
-And the Liquid Value respectively by using the liquidation factors $LF_{i}^{c}$ of each asset.
+The Collateral Value can be calculated by plugging the asset-creditor specific collateral factors $CF_{i}^{c}$ of each asset into equation \ref{eq:portfolio-value-risk-adjusted}.
+And the Liquidation Value respectively by using the liquidation factors $LF_{i}^{c}$ of each asset.
+
+The Margin requirements, Collateral Value and Liquidation Value are discussed in more detail in Paragraph \ref{subsec:margin-accounts}.
 
 \subsection{Creditor Specific Risk Parameters}
 \label{subsec:creditor-specific-cisk-parameters}
 Each Creditor can set a number of risk parameters in the Registry to protect themselves against different risks.
-These risk parameters are taking into account when depositing assets, or when risk-adjusted portfolio values are calculated.
+These risk parameters are taken into account when depositing assets, or when risk-adjusted portfolio values are calculated.
 
 The risk parameters can be asset specific, protocol specific or a single value per creditor.
 
@@ -425,15 +517,17 @@ Each asset $i$ that can be priced by the Registry has a Creditor specific collat
 For Primary Assets, the factors are set directly by Creditor.
 
 For Derived Assets, the risk factors are a function of the risk factors of its underlying assets $u$, and optionally an additional protocol specific risk factor $RF_{p}^{c}$,
-to account for the additional complexity smart contract risk of derived assets:
+to account for the additional complexity and smart contract risks of derived assets:
 \begin{equation}
     CF_{i}^{c} = f(\forall CF_{u}^{c}, RF_{p}^{c})
 \end{equation}
 
-The relation between the risk factor and the risk factors of the underlying assets will depend on the specific nature ot the derived asset.
-It can e.g. be the minimum of each risk factor of the underlying assets, a weighted average or something else.
+The relation between the risk factor of the derived asset and the risk factors of the underlying assets,
+will depend on the specific nature of the derived asset.
+It can be the minimum of each of the risk factors of the underlying assets, or a weighted average or something else.
 
-For derived assets with a single underlying asset the risk factor becomes straightforward and is just the multiplication of the risk factor of the underlying asset and the protocol specific risk factor.
+For derived assets with a single underlying asset,
+the risk factor becomes straightforward and is just the multiplication of the risk factor of the underlying asset and the protocol specific risk factor.
 As an example, take a protocol ($p$) with yield bearing assets, which has an $ETH$ and a $USDC$ vault.
 The collateral factors of the corresponding $pETH$ and $pUSDC$ tokens are:
 \begin{equation}
@@ -444,7 +538,7 @@ The collateral factors of the corresponding $pETH$ and $pUSDC$ tokens are:
 \end{equation}
 
 \subsubsection{Maximum Exposure}
-The maximum exposures give Creditors a tool to set an upper boundary against the overall exposure they can have against certain primary assets or protocols.
+The maximum exposures give Creditors a tool to set upper boundaries against the overall exposures they can have against certain primary assets or protocols of derived assets.
 Creditors can even choose to not be exposed to certain primary assets or protocols (via derived assets) by setting the corresponding maximum exposure to 0.
 
 There is again a difference how the maximum exposure is defined for primary assets and for derived assets.
@@ -455,20 +549,23 @@ As such assets with low on-chain liquidity or small market caps can be used as c
 while market manipulation risks, such as the Mango Market Exploit\cite{coindeskDeFiExchange} can be mitigated.
 
 The total exposure of a primary asset takes into account both direct deposits of the primary asset, as indirect exposures via derived assets.
-If a maximum exposure is reached, no additional amount of the primary asset can be deposited, nor can any derived asset be deposited that is composed of the primary asset.
+
+If a maximum exposure is reached, no additional amount of the primary asset can be deposited,
+nor can any derived asset be deposited that is composed of the primary asset.
 
 For derived assets, there are two mechanisms that provide the Creditor to an upper bound for certain risks.
-As mentioned before, none of the primary assets of which the derived asset is composed can exceed their maximum exposure to mitigate risks of market manipulation and low liquidity.
+As mentioned before, none of the primary assets of which the derived asset is ultimately composed can exceed their maximum exposure to mitigate risks of market manipulation and low liquidity.
 Secondly, each creditor can set an upper limit to the total USD exposure of all derived assets of a certain protocol (e.g. the sum of all liquidity position of Uniswap V2).
-As such the Creditor can limit potential losses due to exploits in the protocol.
+As such, the Creditor can limit potential losses due to exploits in the protocol.
 
 \subsubsection{Minimum Margin}
+\label{subsubsec:minimum-margin}
 Liquidating unhealthy positions has a considerable gas cost, which liquidators take into account when deciding to liquidate a position or not.
 This gas cost is independent of the size of the open position.
-Not taking into account the size independent gas cost could lead to very small positions that are never profitable to liquidate.
+Without a Minimum Margin, this could lead to very small unhealthy positions that are never profitable to liquidate.
 Or even worse, liquidations that are successfully started, but never profitable to end.
 
-To avoid both problems, accounts must have a Creditor specific minimum value of collateral, the minimum margin $MM^{c}$, before they can open a position.
+To avoid both problems, accounts must have a Creditor specific minimum value of collateral, the minimum margin $M_{min}^c$, before they can open a position.
 The minimum margin can not be used to back liabilities and can be seen as an amount of collateral that is locked to at least cover gas costs of Liquidators.
 
 \section{Arcadia Accounts}
@@ -506,7 +603,8 @@ With Arcadia Accounts, the asset management, Accounting logic, and the enforceme
 Arcadia Accounts are permissionless and fully composable with tokens and external DeFi protocols.
 They can be used by on-chain investors to increase their buying power, to short assets, or to hold financial contracts such as futures, swaps, options or other derivatives.
 
-In the next paragraphs (Note: should we move this to an appendix??) we will introduce some margin related concepts and express the Margin requirements mathematically.
+In the next paragraphs we will introduce some margin related concepts and express the Margin requirements mathematically.
+
 Note that we do not 100\% follow the conventions and terminology of the traditional financial world.
 
 \subsubsection{Portfolio Margin}
@@ -530,26 +628,21 @@ All assets held by the Account (deposited and bought) are taken in consideration
 We define the available margin, $am$, as the total value that the Account can use as margin to secure liabilities.
 
 This total value equals the risk-adjusted portfolio value, expressed by Formula \ref{eq:portfolio-value-risk-adjusted},
-where each asset is discounted with an asset-numeraire specific risk factor (the Collateral Factor).
+where each asset is discounted with an asset-Creditor specific risk factor (the Collateral Factor).
 
 Hence the available margin equals the Collateral Value as defined in Paragraph \ref{subsec:portfolio-pricing}
 (we will use the terms 'available margin' and 'Collateral Value' interchangeable).
 \begin{equation}
     \label{eq:available-margin}
-    am = V_{coll}^{num} = \frac{\sum_{i}{CF_{i}^{c} \cdot V^{usd}(A_{i})}}{R_{num\rightarrow usd}}\frac{S_{num}}{10^{18}}
+    am = v_{coll}^{num} = \frac{\sum_{i}{CF_{i}^{c} \cdot v^{usd}_{i}(a_{i})}}{r_{num\rightarrow usd}}\frac{S_{num}}{10^{18}}
 \end{equation}
 
 \subsubsection{Open position}
 The open position, $op^c$, equals the size of the liability that a specific Debtor has with a specific Creditor.
 
 \subsubsection{Minimum Margin}
-The minimum margin, $M_{min}^c$, is the minimum amount of collateral value that must be held in an Account to be able an open position with a Creditor.
-
-The main purpose of the minimum margin is to avoid having accounts with small liabilities, that are unprofitable to liquidate.
-The cost to liquidate assets in general consists of two parts, a cost that increases linearly with the size of the liabilities that has to be repaid (swap fees, slippage, liquidation penalties...)
-and a cost that is Independent from the size of the liabilities (mainly the gas costs executing the liquidation transactions on-chain).
-
-The minimum margin should be set by the Creditor such that it can cover in all costs these fixed costs related to the liquidation of assets.
+As explained in Paragraph \ref{subsubsec:minimum-margin}, the minimum margin, $M_{min}^c$, 
+is the minimum amount of collateral value that must be held in an Account to be able to open position with a Creditor.
 
 \subsubsection{Used Margin}
 The used margin, $um$, is the total amount of collateral value locked by the Account to ensure that the Account remains over-collateralized.
@@ -586,17 +679,17 @@ The account now has an open position of $x$ and holds in total $x + IM_{i}^{c} \
     \label{eq:initial-margin}
     \begin{split}
         &op^c = x\\
-        &V^{num}_i = x + IM_{i}^{c} \cdot x
+        &v^{num}_i = x + IM_{i}^{c} \cdot x
     \end{split}
 \end{equation}
 
 When the minimal amount of collateral is deposited, the free margin will be zero, and after plugging Equation \ref{eq:available-margin} into \ref{eq:free-margin}, the used margin equals the collateral value:
 \begin{equation}
-    CF_{i}^{c} \cdot V^{num}_i = um
+    CF_{i}^{c} \cdot v^{num}_i = um
 \end{equation}
-And if we ignore the minimum margin (this will be small compared to the open position) this simplifies to:
+And if we ignore the minimum margin (this will be small compared to the open position in most cases) this simplifies to:
 \begin{equation}
-    CF_{i}^{c} \cdot V^{num}_i = op^c
+    CF_{i}^{c} \cdot v^{num}_i = op^c
 \end{equation}
 And finally after plugging in Equations \ref{eq:initial-margin}, we find the relation between the initial margin and the Collateral Factor:
 \begin{equation}
@@ -615,25 +708,34 @@ A similar derivation as in Paragraph \ref{subsubsec:initial-margin} can be made 
 \end{equation}
 
 \subsubsection{Margin Account Health States}
-There are three different account states, depending on the Used Margin of the Account and the risk adjusted total values of of the Account.
+\label{subsubsec:margin-account-health-states}
+There are three different account states, as shown in Figure \ref{fig:health-states},
+depending on the Used Margin of the Account and the risk adjusted total values of of the Account.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.4\textwidth]{images/Health-States.png}
+    \caption{Margin Account health states. \label{fig:health-states}}
+    \Description{The Margin Account health states.}
+\end{figure}
 
 \begin{enumerate}
     \item \textsc{Healthy state:} The Account is in a healthy state if the used margin is smaller than the Collateral Value:
         \begin{equation}
-            um < V_{coll}
+            um < v_{coll}
         \end{equation}
 
         No account actions are restricted for Accounts in a healthy state, as long as the Account is still healthy at the end the action.
     \item \textsc{Unhealthy state:} The Account is in an unhealthy state if the used margin is smaller than the Collateral Value but bigger than the Liquidation Value:
         \begin{equation}
-            V_{coll} < um < V_{liq}
+            v_{coll} < um < v_{liq}
         \end{equation}
         
         Accounts in the unhealthy state can only be de-risked by or reducing the open position, or adding more collateral assets.
         It is not possible to withdraw any assets or increase the open position.
     \item \textsc{Liquidatable state:} The Account is in a liquidatable state if the used margin is smaller than the Liquidation Value:
         \begin{equation}
-            V_{liq} < um
+            v_{liq} < um
         \end{equation}
         
         When an account is in the liquidatable state, anyone can trigger a margin call.
@@ -643,17 +745,26 @@ There are three different account states, depending on the Used Margin of the Ac
 
 \subsection{Upgradeability}
 \label{subsec:upgradeability}
+
 Arcadia Accounts are based on the ERC1967 standard for Proxy accounts.
 Each account contract points to a certain Account logic contract.
 It is the logic contract that implements the features to: deposit/withdraw assets, do flash actions, manage assets, authorise delegations...
 
-Different implementations of the Account logic can (co)exist and each implementation is uniquely identified with a specific version in the Account factory.
+Different implementations of the Account logic can (co)exist and each implementation is uniquely identified with a specific version in the Account factory,
+as illustrated in Figure \ref{fig:proxy-accounts}.
 The Arcadia team can periodically push a new version to the Arcadia Factory, which might add new features, extend logic, or implement other improvements.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.45\textwidth]{images/Proxy-Accounts.png}
+    \caption{Arcadia Proxy Accounts and Account Logic Versions. \label{fig:proxy-accounts}}
+    \Description{Shematic of the Proxy Accounts and their relation to the Account Logic.}
+\end{figure}
 
 Creditors can determine which Account logic versions are allowed to be used by their Debtors.
 As such, they can block version with certain features or highly-customized Account logic can be implemented for Creditor-specific versions should this be required.
 
-The Account logic is upgradable, enabling existing accounts to make use of newly introduced features in a new Account version if they whichs.
+The Account logic is upgradable, enabling existing accounts to make use of newly introduced features in a new Account version if they wish.
 Upgrading Account logic is always on an opt-in basis, it can never be enforced by the Arcadia protocol.
 The Accounts can only be upgraded to a different version if both the Account owner and the Creditor (if a margin account is opened) accept the specific version.
 
@@ -691,6 +802,7 @@ This means that Accounts are fully composable with existing infrastructure and c
 An Arcadia Account can be transferred (or sold!) as a whole, including all assets and liabilities, just like you're used to transferring NFTs.
 
 \subsection{Flash Actions}
+% Add image illustrating flash actions?
 Flash Actions (or optimistic Actions or flash accounting) expands on the concept of flashloans, and are only possible thanks to a unique property of smart contracts: atomicity\cite{xie2022towards}.
 Just as with flashloans, each step of the Flash Action must be successful or the transaction as a whole fails.
 
@@ -699,7 +811,7 @@ This allows the Account Owner to temporary bring the Account in an undercollater
 Since if the Account is not brought back into a healthy state during the transaction, the final health check fails and thanks to atomicity the whole transaction fails.
 
 This gives Account Owners unprecedented flexibility to manage assets and liabilities.
-In a fully permissionless way they can chain the following together (= do a flash action):
+In a fully permissionless way they can chain the following actions together (= do a flash action):
 \begin{itemize}
     \item A margin Account can be opened for a new Creditor, if the new Creditor is approved by the Account Owner.
     \item The Creditor can execute arbitrary logic (e.g. give a flashloan).
@@ -738,7 +850,7 @@ Instead the Arcadia Accounts are "Account Abstraction ready".
 Still some key features of account abstraction are implemented in a non-standardized form.
 Most notable the ability to bundle multiple actions, and the ability to set an entry point that can do operations on behalf of the account owner.
 
-The Arcadia Accounts are implemented in such a way that if at some point account abstraction is implemented, they can be easily modify to adhere the the agreed upon standard.
+The Arcadia Accounts are implemented in such a way that if at some point account abstraction is standardized, they can be easily modify to adhere the the agreed upon standard.
 Even users with existing accounts can (if they want) upgrade their Accounts to this new version with full Account Abstraction, as explained in Paragraph \ref{subsec:upgradeability}.
 
 \subsection{Intent ready}
@@ -758,7 +870,7 @@ Tis would again require an upgrade of the Accounts logic as described in Paragra
 Account owners can appoint one or more Asset Managers, including external smart contracts, which can take actions on behave of the Account owner.
 
 The Asset Manager is a fully trusted role, and should be used with care.
-No Account owner should set an Asset Manager which he doesn’t trust with their funds?
+No Account owner should set an Asset Manager which he doesn't trust with their funds.
 
 The asset manager has multiple use-cases, a few examples are (non exhaustive list):
 \begin{itemize}
@@ -770,39 +882,172 @@ The asset manager has multiple use-cases, a few examples are (non exhaustive lis
 
 \section{Arcadia Creditor}
 \label{sec:arcadia-creditor}
+An Arcadia Creditor is a (set of) smart contract(s),
+that does the accounting of the open position(s) between one or more Debtor(s) and one or more Creditor(s),
+and where all open positions are fully secured by the collateral held in Arcadia Accounts,
+owned by each of the Debtors.
+
+Examples of Creditors can be implementations of peer-to-peer lending protocols, peer-to-pool lending, perpetual futures contracts, options contracts...
+An Arcadia Creditor can be implemented for basically every financial contract or protocol where a party has, or can have, liabilities.
 
 \subsection{Generalised Creditor}
+Since the Arcadia Financial stack is open and permissionless,
+every financial contract or protocol with one or more Debtors,
+can build on top of the Arcadia financial stack.
 
-\subsection{Composable}
+Protocols that which to do so, only have to implement the Arcadia Creditor interface
+and are immediately compatible with the Arcadia Registry and Arcadia Accounts.
 
-\subsection{Risk Management}
+Next to the advantages as laid out in Paragraph \ref{subsec:new-architectures},
+this means they don't have to implement any logic for collateral management and margin calculations.
+Greatly reducing smart contract development time, auditing costs and go to market times.
 
-\subsection{Accounting Liabilities}
+In the next paragraphs we will discuss the most important features of the Arcadia Creditor interface.
 
-\subsection{Liquidations}
+\subsubsection{Accounting Liabilities}
+Most important is the correct accounting of the open positions of the Debtors.
+As explained in Paragraph \ref{subsubsec:margin-account-health-states},
+the open position is used for the margin calculations to determine the health state of the Arcadia Account of Debtor.
+Which in turn guarantees that all liabilities can be paid back to the Creditor.
 
-\lipsum[5]
+A Creditor must denominate their liabilities in a certain numeraire.
+This represents the unit of accounting, for example USD, USDC or ETH.
+
+The Arcadia Account of the Debtors will use the same numeraire for the margin calculations.
+
+\subsubsection{Risk Management}
+The owner of a Creditor must set a Risk Manager.
+The Risk manager can be both an EOA or a smart contract.
+
+The Risk Manager is responsible for setting and maintaining the correct collateral and liquidation factors for all assets that can be used by Debtors as collateral.
+Next to these factors, the Risk Manager also sets the exposure limits against each individual asset. 
+
+In short, it protects the Creditor against market and other risks, and ensures the credit risk borne by the Creditor remains acceptable.
+
+\subsubsection{Allowed Account Versions}
+a Creditor can set one or more Account versions as approved,
+meaning that any Account with an approved version is able to take liabilities from the Creditor.
+
+\subsubsection{Liquidations}
+Every Creditor must ensure that a suitable liquidation flow is foreseen in case an Account's health state drops to the liquidatable state,
+as explained in Paragraph \ref{subsubsec:margin-account-health-states}.
+
+The Arcadia team already developed a robust liquidation flow which can be re-used by other Creditors,
+which is further described in Paragraph \ref{subsubsec:liquidations}.
 
 \subsection{Arcadia Lending Pools}
+The Arcadia Lending Pools are just one example of an implementation of an Arcadia Creditor.
 
-\lipsum[6]
+Since the Arcadia Lending Pools Arcadia are an implementation of the Arcadia Creditor,
+they come with the features as mentioned in Paragraph \ref{sec:arcadia-creditor}.
 
-\begin{figure}
-    \label{fig:arcadia-logo}
-    \centering
-    \includegraphics[width=0.3\textwidth]{images/Logo-Arcadia.png}
-    \caption{Example of an image.}
-    \Description{Example of an image.}
-  \end{figure}
+An Arcadia Lending Pool is peer-to-pool lending protocol, developed by the Arcadia team.
+On a conceptual level, it consists of a two-sided lending market between liquidity providers and borrowers.
+
+Next to that, the Lending Pools also come with a number of innovations compared to other peer-to-pool lending protocols.
+
+\subsubsection{Interests}
+Arcadia Lending will use a variable interest rate, depending on the utilization rate of the underlying lending pool.
+
+Every-time a user interacts with the Lending Pool (depositing/withdrawing liquidity, taking/repaying debt),
+the accounting logic for interest payments is triggered and the new interest rate is calculated.
+Interests are continuously compounding.
+
+The ERC-4626 standard is used to represent both the open positions of Debtors (see Paragraph \ref{subsubsec:accounting-liabilities}),
+as the yield bearing positions of liquidity providers (see Paragraph \ref{subsubsec:accounting-liquidity}).
+Using the ERC-4626 standard makes the accounting logic gas efficient and ensures composability with existing protocols and infrastructure.
+
+\subsubsection{Accounting Liabilities}
+\label{subsubsec:accounting-liabilities}
+When a Debtor borrows from the Lending Pool,
+an ERC4626 token (the debt token or dToken) will be minted to his/her Arcadia Account.
+The dTokens tokens are not transferable.
+
+The interests on all debt are automatically and continuously accruing via the ERC4626 standard.
+
+\subsubsection{Tranches}
+% Add image illustrating Tranches?
+Each lending pool consists of one or more risk Tranches.
+A Tranche is a slice of the total liquidity in the pool, with a different risk-reward profile compared to other Tranches.
+
+For example, the most Junior Tranche (or Insurance Tranche) receives a larger relative share of the interest payments and a larger relative share of the liquidation penalties,
+but is slashed first should any bad debt occur.
+
+Similarly, a more Senior Tranche may have lower yields through interests and liquidations,
+but will only be slashed because of bad debt as soon all the more Junior Tranches are completely slashed.
+
+With some game-theory in mind, the overall risk-reward of a more Junior Tranche will be higher than of a more Senior Tranche.
+
+The main advantage of risk Tranches is that Liquidity Providers with different risk/reward preferences can provide liquidity,
+but that all liquidity is still pooled in the same underlying Lending Pool.
+Not fragmenting the liquidity over different pools results in deeper liquidity for the borrowers and more stable interest rates.
+
+\subsubsection{Accounting Liquidity}
+\label{subsubsec:accounting-liquidity}
+Anyone who owns the underlying asset of the Lending Pool, can deposit liquidity via one of the Tranches.
+
+When a Liquidity Provider (LP) deposits liquidity, they receive an ERC4626 yield bearing token (ybToken).
+Each Tranche will have its own ERC4626 token.
+
+The Lending Pool will do the accounting how much liquidity is owned by each Tranche,
+while the tranches in turn will do the accounting of how much of that liquidity is owned by their respective LPs.
+
+Yield earned through interests and liquidation fees is divided over the different Tranches
+(more Junior tranches will earns a bigger relative share of the yield).
+And via the ERC4626 standard the yield is further pro-rata distributed to the Tranches LPs.
+
+\subsubsection{Liquidations}
+\label{subsubsec:liquidations}
+Liquidation within Arcadia's system is conducted via a three-step process using a Gradual Dutch Auction.
+
+Initially, anyone can initiate the liquidation of an account that falls below the liquidatable health threshold,
+receiving a reward for doing so.
+
+The auction that follows sees the accounts asset prices gradually decrease until a buyer,
+typically an MEV searcher looking to minimize slippage, steps in and places a bid.
+The process allows for partial liquidations to reduce market impact.
+
+Anyone can end the auction, and also receives a reward for doing so, if any if the following conditions are met:
+\begin{itemize}
+    \item The Account is back in a healthy state.
+    \item All debt is repaid.
+    \item All collateral assets are sold.
+    \item A certain amount of time (set by the Lending Pool) has passed.
+\end{itemize}
+
+After the auction is successfully ended, the liquidation is settled.
+There are three different scenarios how a liquidation can be settled,
+depending on the total proceeds of the auction relative to the debt and liquidation penalties:
+\begin{enumerate}
+    \item If the auction proceeds are less than the debt,
+    the shortfall is covered by the junior risk tranche's tokens.
+    \item If the auction proceeds exceed the debt but is under the debt plus liquidation penalty,
+    the surplus is shared between Arcadia's treasury and the junior tranche.
+    \item If the auction proceeds surpass the debt and the liquidation penalty cap,
+    excess funds after penalty distribution are returned to the account's original owner.
+\end{enumerate}
 
 \section{Summary}
-\lipsum[7]
+\label{sec:summary}
+In conclusion, this paper has explored the development and implementation of the Arcadia Finance Technology Stack:
+A shared standardized and permissionless layer with battle tested logic for collateral management and margined positions,
+on top of which financial protocols can build their application specific financial contracts.
+
+By leveraging this technology stack, protocols can streamline their development processes, reducing both time and potential bugs,
+allowing them to concentrate on refining their core logic. 
+Simultaneously, users benefit from the simplicity of managing on-chain portfolios through a single account, minimizing risks, and significantly enhancing the overall user experience.
+
+In closing, we invite further exploration and collaboration to unlock the full potential of DeFi and contribute to the ongoing evolution of the finance system.
+
+\section*{Disclaimer}
+This document is intended for general informational purposes only and should not be construed as investment advice or
+a recommendation to buy or sell any investments.
+The views expressed herein represent the current opinions of the authors and are not presented on behalf of Arcadia Finance, Pragma Labs, or their affiliates.
+The opinions conveyed do not necessarily align with those of Arcadia Finance, Pragma Labs, their affiliates, or associated individuals,
+and they may be subject to change without prior updates.
 
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{main}
-
-\section*{Disclaimer}
-\lipsum[8]
 
 \end{document}
 
