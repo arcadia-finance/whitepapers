@@ -894,7 +894,7 @@ An Arcadia Creditor can be implemented for basically every financial contract or
 \subsection{Generalized Creditor}
 Since the Arcadia Finance Technology Stack is open and permissionless,
 every financial contract or protocol with one or more Debtors,
-can build on top of the Arcadia financial stack.
+can build on top of the Arcadia Finance Technology Stack.
 
 Protocols that whish to do so, only have to implement the Arcadia Creditor interface
 and are immediately compatible with the Arcadia Registry and Arcadia Accounts.
@@ -920,14 +920,16 @@ The Arcadia Account of the Debtors will use the same numeraire for the margin ca
 The owner of a Creditor must set a Risk Manager.
 The Risk manager can be both an EOA or a smart contract.
 
-The Risk Manager is responsible for setting and maintaining the correct collateral and Liquidation Factors for all assets that can be used by Debtors as collateral.
+The Risk Manager is responsible for setting and maintaining the correct Collateral and Liquidation Factors for all assets that can be used by Debtors as collateral.
 Next to these factors, the Risk Manager also sets the exposure limits against each individual asset. 
 
 In short, it protects the Creditor against market and other risks, and ensures the credit risk borne by the Creditor remains acceptable.
 
 \subsubsection{Allowed Account Versions}
-A Creditor can set one or more Account versions as approved,
-meaning that any Account with an approved version is able to take liabilities from the Creditor.
+As explained in paragraph \ref{subsec:upgradeability}, multiple Account versions can coexist.
+
+Each Creditor can approve one or more of these Account versions,
+meaning that only Accounts with an approved version are able to open positions with the respective Creditor.
 
 \subsubsection{Liquidations}
 Every Creditor must ensure that a suitable liquidation flow is foreseen in case an Account's health state drops to the liquidatable state,
