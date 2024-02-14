@@ -941,7 +941,7 @@ which is further described in Paragraph \ref{subsubsec:liquidations}.
 \subsection{Arcadia Lending Pools}
 The Arcadia Lending Pools are just one example of an implementation of an Arcadia Creditor.
 
-Since the Arcadia Lending Pools Arcadia are an implementation of the Arcadia Creditor,
+Since the Arcadia Lending Pools are an implementation of the Arcadia Creditor,
 they come with the features as mentioned in Paragraph \ref{sec:arcadia-creditor}.
 
 An Arcadia Lending Pool is a peer-to-pool lending protocol, developed by the Arcadia team.
@@ -972,7 +972,7 @@ The interests on all debt are automatically and continuously accruing via the ER
 Each Lending Pool consists of one or more risk Tranches.
 A Tranche is a slice of the total liquidity in the pool, with a different risk-reward profile compared to other Tranches.
 
-For example, the most Junior Tranche (or Insurance Tranche) receives a larger relative share of the interest payments and a larger relative share of the liquidation penalties,
+For example, the most Junior Tranche receives a larger relative share of the interest payments and a larger relative share of the liquidation penalties,
 but is slashed first should any bad debt occur.
 
 Similarly, a more Senior Tranche may have lower yields through interests and liquidations,
@@ -1013,8 +1013,8 @@ Liquidations for Arcadia Lending Pool are conducted via a three-step process usi
 Initially, anyone can initiate the liquidation of an Account that falls below the liquidatable health threshold,
 receiving a reward for doing so.
 
-The auction that follows sees the Account's asset prices gradually decrease until a buyer,
-typically an MEV searcher looking to minimize slippage, steps in and places an atomic bid.
+After the liquidation is initiated, a Gradual Dutch Auction starts where the Account's asset prices gradually decrease until a buyer,
+typically an MEV searcher, steps in and places an atomic bid.
 The process allows for partial liquidations to reduce market impact.
 
 Anyone can end the auction, and also receives a reward for doing so, if any if the following conditions are met:
@@ -1052,11 +1052,11 @@ A shared standardized and permissionless layer with battle-tested logic for coll
 on top of which financial protocols can build their application specific financial contracts.
 
 By leveraging this technology stack, protocols can streamline their development processes, reducing both time and potential bugs,
-allowing them to concentrate on refining their core logic. 
+allowing them to concentrate on refining their core logic.
 Simultaneously, users benefit from the simplicity of managing on-chain portfolios through a single Arcadia Account, minimizing risks,
 and significantly enhancing the overall user experience.
 
-In closing, we invite further exploration and collaboration to unlock the full potential of DeFi and contribute to the ongoing evolution of the finance system.
+In closing, we invite further exploration and collaboration to unlock the full potential of DeFi and contribute to the ongoing evolution of the financial system.
 
 \section*{Disclaimer}
 This document is intended for general informational purposes only and should not be construed as investment advice or
