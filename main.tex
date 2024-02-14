@@ -1037,6 +1037,14 @@ depending on the total proceeds of the auction relative to the debt and liquidat
     excess funds after penalty distribution are returned to the Account's original owner.
 \end{enumerate}
 
+A groundbreaking feature of our liquidation flow is its flexibility to accommodate interventions by the original account owner 
+or third-party automation tools. This means that if an account initiates the liquidation process, they, 
+or an automated system acting on their behalf, can add assets to the account to mitigate losses. 
+This functionality allows the auction process to end with minimal loss for the original owner, 
+significantly differentiating our liquidation system from other DeFi protocols. 
+This innovative approach offers account holders and third-party tools a proactive means to manage and potentially 
+reduce the impact of liquidation events, ensuring a more dynamic and responsive liquidation process.
+
 \begin{figure}
     \centering
     \includegraphics[width=0.45\textwidth]{images/Liquidation-Settlement.png}
