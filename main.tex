@@ -7,8 +7,8 @@
 
 %% header
 \title{Arcadia Finance [Draft]}
-\subtitle{November 2023}
-\date{November 2023}
+\subtitle{February 2024}
+\date{February 2024}
 
 \author{Thomas Smets}
 \affiliation{
@@ -131,7 +131,7 @@ This might paradoxically cement even greater systemic risks into the financial s
 Blockchain has some excellent properties with regards to collateral management:
 \begin{itemize}
     \item With its immutable and transparent ledger, collateral can be audited 24/7.
-    \item Smart contracts enforce margin requirements real time on a 24/7 continuous basis.
+    \item Smart contracts enforce margin requirements in real time on a 24/7 continuous basis.
     \item Atomic execution of transactions avoids expensive reconciliation processes and eliminates settlement risk.
     \item Atomic execution of transactions enables optimistic execution of transactions (e.g. flash loans),
     which can greatly improve processes such as refinancing liabilities or even enable completely new financial use-cases.
@@ -221,7 +221,7 @@ Being able to build on top of battle-tested code would benefit smart contract de
 \subsubsection{Fragmented and Isolated Collateral}
 \label{subsubsec:fragmented-collateral}
 
-Having a global shared state across applications and assets is often cited as one of the key advantages of blockchain over centralized financial infrastructures\cite{schar2021decentralized}.
+Having a global shared state across applications and assets is often cited as one of the key advantages of blockchain over centralized financial infrastructure\cite{schar2021decentralized}.
 This should open up a whole new solution space for Debtors to manage collateralized positions,
 and might even enable a single Debtor to share its margin between non-trusting Creditors without intermediaries.
 
@@ -341,7 +341,7 @@ The Arcadia Accounts are advanced user-controlled smart wallets, responsible for
 With Arcadia Accounts, diversified portfolios can be used as collateral, and the same Account can serve as margin account for different Creditors.
 
 Arcadia Accounts owners can batch together multiple account actions, automate account actions and interact optimistically with third party protocols.
-Arcadia Accounts enable an unprecedented user experience, while not compromising on self-custody and composability.
+Arcadia Accounts enable an unprecedented user experience, without compromising on self-custody and composability.
 
 Arcadia Accounts are further customable to suit specific needs of certain users or Creditors.
 
@@ -410,7 +410,7 @@ a correction from the oracle precision to a precision of 18 decimals is required
 \subsection{Asset Modules}
 Just as Oracle Modules implement the logic to return oracle-rates in a standardized format,
 Asset Modules will return Asset values in a standardized format.
-Similarly to how each oracle implementation has its own oracle Module, each asset type has its own Asset Module.
+Similar to how each oracle implementation has its own oracle Module, each asset type has its own Asset Module.
 
 Next to pricing logic, Asset Modules also store and manage asset specific risk parameters, which we will discuss in more detail in Paragraph \ref{subsec:creditor-specific-cisk-parameters}.
 
@@ -489,15 +489,15 @@ A correction $S_{num}$ is applied to bring the value from the 18 decimals precis
 
 The result of equation \ref{eq:portfolio-value-mtm} is the spot or MtM (mark-to-market) value of the portfolio.
 
-Next to the MtM value of the portfolio, the Registry can also calculate risk adjusted portfolios values,
-where assets are discounted with a asset-Creditor specific risk factor $RF_{i}^{c}$, set by each Creditor.
+Next to the MtM value of the portfolio, the Registry can also calculate risk adjusted portfolio values,
+where assets are discounted with an asset-Creditor specific risk factor $RF_{i}^{c}$, set by each Creditor.
 The risk adjusted portfolio value $v_{risk}^{num}(P)$ is then given as:
 \begin{equation}
     \label{eq:portfolio-value-risk-adjusted}
     v_{risk}^{num}(P) = \frac{\sum_{i}{RF_{i}^{c} \cdot v^{usd}_{i}(a_{i})}}{r_{num\rightarrow usd}}\frac{S_{num}}{10^{18}}
 \end{equation}
 
-There are two important risk adjusted portfolios values: The Collateral Value $v_{coll}^{num}$ of the Account and the Liquidation Value $v_{liq}^{num}$ of the account.
+There are two important risk adjusted portfolio values: The Collateral Value $v_{coll}^{num}$ of the Account and the Liquidation Value $v_{liq}^{num}$ of the account.
 
 Both are used to check the Margin Requirements of the account.
 The Collateral Value can be calculated by plugging the asset-Creditor specific Collateral Factors $CF_{i}^{c}$ of each asset into equation \ref{eq:portfolio-value-risk-adjusted}.
@@ -588,12 +588,13 @@ they can also use the account/card to incur liabilities.
 
 Unlike credit cards however, Margin Accounts do not rely on trust and reputation to ensure liabilities are paid back.
 
-The Margin Account mitigates the counterparty risk, borne by the Creditor,
-by guaranteeing that the total value of all assets within the Account is always bigger than the liabilities against the Account (it is over-collateralized):
+The Margin Account mitigates the counterparty risk borne by the Creditor,
+by guaranteeing that the total value of all assets within the Account is always bigger than the liabilities against the Account (it is over-collateralized).
+The Margin Account will:
 \begin{itemize}
-    \item It holds the collateral assets and open positions of the Debtor (the Account owner).
-    \item It does the accounting of both the assets and liabilities.
-    \item It enforces the margin requirements continuously:
+    \item Hold the collateral assets and open positions of the Debtor (the Account owner).
+    \item Do the accounting of both the assets and liabilities.
+    \item Enforce the margin requirements continuously:
     \begin{itemize}
         \item Any Account Action that would bring it at risk of becoming under-collateralized is automatically reverted.
         \item If over time, due to changing values of assets/liabilities, it is at risk of becoming under-collateralized, a margin call is triggered.
@@ -699,7 +700,7 @@ Finally after plugging in Equations \ref{eq:initial-margin}, we find the relatio
 
 \subsubsection{Maintenance Margin}
 The maintenance margin of an asset, $MM_{i}^{c}$, is similar to the initial margin.
-It is the percentage of the value of an asset bought on margin, that must be covered by additional collateral held in the Account at all time after the transaction.
+It is the percentage of the value of an asset bought on margin that must be covered by additional collateral held in the Account at all time after the transaction.
 
 If the value of the additional collateral would ever fall below the maintenance margin, a margin call is triggered and a liquidation of the assets of the Account start.
 
@@ -794,7 +795,7 @@ The Account logic is upgradable, enabling existing accounts to make use of newly
 Upgrading Account logic is always on an opt-in basis, it can never be enforced by the Arcadia protocol.
 The Accounts can only be upgraded to a different version if both the Account owner and the Creditor (if a margin account is opened) accept the specific version.
 
-When users upgrade their Accounts, they don't have to migrate any assets or close liabilities and the Accounts keeps the same contract address.
+When users upgrade their Accounts, they don't have to migrate any assets or close liabilities and the Accounts keep the same contract address.
 
 \subsection{Composable}
 Arcadia Accounts themselves are according to the ERC-721 standard and can thus be represented as a single asset on-chain.
@@ -855,17 +856,17 @@ The Arcadia Accounts are implemented in such a way that if at some point account
 Even users with existing accounts can (if they want) upgrade their Accounts to this new version with full Account Abstraction, as explained in Paragraph \ref{subsec:upgradeability}.
 
 \subsection{Intent Ready}
-We truly believe in the benefits intent based architectures bring for end-users,
+We truly believe in the benefits that intent based architectures bring for end-users,
 especially for collateral and asset management.
 
-But similarly to what we said in Paragraph \ref{subsec:account-abstraction-ready} about Account Abstraction,
-there is, at the time of writing this paper, no generalized infrastructure or standardization for intents within the Ethereum ecosystem yet.
+However, as of this writing, no generalized infrastructure or standardization for intents exist within the Ethereum ecosystem.
 
-The Arcadia Accounts are however designed to be "intent ready".
-They will initially work with a non-standard single solver for intent based actions, with certain off-chain dependencies.
+The Arcadia Accounts, therefore, are designed to be "intent ready".
+They will initially work with a non-standard single solver for intent-based actions, with certain off-chain dependencies.
 
-And secondly, the Arcadia Account require little modifications to support "full intents" as soon as the required infra/standard is available.
-This would again require an upgrade of the Accounts logic as described in Paragraph \ref{subsec:upgradeability}.
+Arcadia Account require little modifications to support "full intents".
+Thus as soon as the required infrastructure/standard is available, it can be implemented.
+This would require an upgrade of the Accounts logic as described in Paragraph \ref{subsec:upgradeability}.
 
 \subsection{Automated Asset Management}
 Account owners can appoint one or more Asset Managers, including external smart contracts, which can take actions on behave of the Account owner.
@@ -1054,7 +1055,7 @@ reduce the impact of liquidation events, ensuring a more dynamic and responsive 
 \label{sec:summary}
 In conclusion, this paper has explored the development and implementation of the Arcadia Finance Technology Stack:
 A shared standardized and permissionless layer with battle-tested logic for collateral management and margined positions,
-on top of which financial protocols can build their application specific financial contracts.
+on top of which financial protocols can build their application-specific financial contracts.
 
 By leveraging this technology stack, protocols can streamline their development processes, reducing both time and potential bugs,
 allowing them to concentrate on refining their core logic.
